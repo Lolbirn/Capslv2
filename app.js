@@ -30,8 +30,9 @@ const defaultSupplements = [
 
 const state = {
   supplements: normalizeSupplements(loadJSON(STORAGE_KEY, loadFirst(OLD_STORAGE_KEYS, defaultSupplements))),
-  checks: loadJSON(CHECKS_KEY, loadFirst(OLD_CHECK_KEYS, {})),
+  checks: {},
 };
+state.checks = migrateChecks(loadJSON(CHECKS_KEY, loadFirst(OLD_CHECK_KEYS, {})), state.supplements);
 
 const elements = {
   openFormButton: document.querySelector("#openFormButton"),
@@ -53,7 +54,7 @@ const elements = {
   templateOptions: document.querySelector("#templateOptions"),
   doseAmountInput: document.querySelector("#doseAmountInput"),
   doseUnitInput: document.querySelector("#doseUnitInput"),
-  timeInput: document.querySelector("#timeInput"),
+  timeToggleGroup: document.querySelector("#timeToggleGroup"),
   stockInput: document.querySelector("#stockInput"),
   stockUnitInput: document.querySelector("#stockUnitInput"),
   servingInput: document.querySelector("#servingInput"),
@@ -117,6 +118,12 @@ elements.templateInput.addEventListener("change", () => {
   }
 });
 
+elements.timeToggleGroup.querySelectorAll(".time-toggle").forEach((button) => {
+  button.addEventListener("click", () => {
+    button.classList.toggle("is-selected");
+  });
+});
+
 elements.customModeButton.addEventListener("click", () => {
   elements.templateCards.querySelectorAll(".template-card").forEach((card) => card.classList.remove("is-selected"));
   elements.templateInput.value = "";
@@ -143,14 +150,14 @@ elements.supplementForm.addEventListener("submit", (event) => {
     name: elements.templateInput.value.trim(),
     doseAmount: toNumber(elements.doseAmountInput.value),
     doseUnit: elements.doseUnitInput.value,
-    time: elements.timeInput.value,
+    times: getSelectedTimes(),
     stock: toNumber(elements.stockInput.value),
     initialStock: toNumber(elements.stockInput.value),
     stockUnit: elements.stockUnitInput.value,
     serving: Math.max(0.1, toNumber(elements.servingInput.value)),
   };
 
-  if (!formData.name) {
+  if (!formData.name || !formData.times.length) {
     return;
   }
 
@@ -205,7 +212,8 @@ function render() {
 
 function renderStats() {
   const activeSupplements = activeItems();
-  const total = activeSupplements.length;
+  const slots = activeSlots();
+  const total = slots.length;
   const done = checkedToday().length;
   const completion = total ? Math.round((done / total) * 100) : 0;
   const lowStock = activeSupplements.filter((item) => daysLeft(item) <= 7).length;
@@ -213,7 +221,7 @@ function renderStats() {
 
   elements.completionValue.textContent = `${completion}%`;
   elements.completionBar.style.width = `${completion}%`;
-  elements.supplementCount.textContent = total;
+  elements.supplementCount.textContent = activeSupplements.length;
   elements.openDoseCount.textContent = Math.max(total - done, 0);
   elements.lowStockCount.textContent = lowStock;
   elements.pausedCount.textContent = paused;
@@ -272,14 +280,15 @@ function renderRoutine() {
     return;
   }
 
-  const groups = groupByTime(activeItems());
-  groups.forEach(([time, supplements]) => {
+  const groups = groupSlotsByTime(activeSlots());
+  groups.forEach(([time, slots]) => {
     const group = document.createElement("section");
     group.className = "routine-group";
     group.innerHTML = `<h3>${escapeHTML(time)}</h3>`;
 
-    supplements.forEach((item) => {
-      const isDone = checkedToday().includes(item.id);
+    slots.forEach((slot) => {
+      const item = slot.supplement;
+      const isDone = checkedToday().includes(slot.checkId);
       const row = document.createElement("article");
       row.className = `routine-item ${isDone ? "is-done" : ""}`;
       row.innerHTML = `
@@ -288,7 +297,7 @@ function renderRoutine() {
           <p class="routine-meta">${formatDose(item)} · reicht noch ${daysLeft(item)} Tage</p>
         </div>
         <div class="item-actions">
-          <button class="check-button" data-check-id="${item.id}" type="button" aria-label="${item.name} als eingenommen markieren">
+          <button class="check-button" data-check-id="${slot.checkId}" type="button" aria-label="${item.name} als eingenommen markieren">
             <span class="check-icon">${isDone ? "✓" : ""}</span>
             <span>${isDone ? "Erledigt" : "Eingenommen"}</span>
           </button>
@@ -384,13 +393,13 @@ function renderStock() {
 
 function renderHistory() {
   elements.historyList.innerHTML = "";
+  const total = activeSlots().length;
 
   for (let index = 6; index >= 0; index -= 1) {
     const date = new Date();
     date.setDate(date.getDate() - index);
     const key = toDateKey(date);
     const checks = state.checks[key] || [];
-    const total = activeItems().length;
     const completion = total ? Math.round((checks.length / total) * 100) : 0;
     const isComplete = total > 0 && completion >= 100;
     const day = document.createElement("article");
@@ -423,7 +432,7 @@ function openSupplementForm(item = null) {
     elements.templateInput.value = "";
     elements.doseAmountInput.value = template.doseAmount;
     elements.doseUnitInput.value = template.doseUnit;
-    elements.timeInput.value = template.time;
+    setSelectedTimes([template.time]);
     elements.stockInput.value = template.stock;
     elements.stockUnitInput.value = template.stockUnit;
     elements.servingInput.value = template.serving;
@@ -498,10 +507,23 @@ function fillForm(source) {
   elements.templateInput.value = source.name;
   elements.doseAmountInput.value = source.doseAmount;
   elements.doseUnitInput.value = source.doseUnit;
-  elements.timeInput.value = source.time;
+  setSelectedTimes(source.times || (source.time ? [source.time] : []));
   elements.stockInput.value = source.stock;
   elements.stockUnitInput.value = source.stockUnit;
   elements.servingInput.value = source.serving;
+}
+
+function setSelectedTimes(times) {
+  const selected = new Set(times);
+  elements.timeToggleGroup.querySelectorAll(".time-toggle").forEach((button) => {
+    button.classList.toggle("is-selected", selected.has(button.dataset.time));
+  });
+}
+
+function getSelectedTimes() {
+  return Array.from(elements.timeToggleGroup.querySelectorAll(".time-toggle.is-selected")).map(
+    (button) => button.dataset.time
+  );
 }
 
 function renderTemplateOptions() {
@@ -543,21 +565,22 @@ function editSupplement(id) {
   }
 }
 
-function toggleCheck(id) {
+function toggleCheck(checkId) {
+  const supplementId = checkId.split("::")[0];
   const checks = checkedToday();
-  const supplement = state.supplements.find((item) => item.id === id);
-  const isDone = checks.includes(id);
+  const supplement = state.supplements.find((item) => item.id === supplementId);
+  const isDone = checks.includes(checkId);
 
   if (!supplement) {
     return;
   }
 
   state.checks[todayKey] = isDone
-    ? checks.filter((checkedId) => checkedId !== id)
-    : [...new Set([...checks, id])];
+    ? checks.filter((id) => id !== checkId)
+    : [...new Set([...checks, checkId])];
 
   if (isDone) {
-    undoStockFor(id);
+    undoStockFor(supplementId);
   } else {
     supplement.stock = Math.max(0, supplement.stock - supplement.serving);
   }
@@ -567,7 +590,7 @@ function toggleCheck(id) {
 }
 
 function resetDay() {
-  checkedToday().forEach((id) => undoStockFor(id));
+  checkedToday().forEach((checkId) => undoStockFor(checkId.split("::")[0]));
   state.checks[todayKey] = [];
   elements.appMenu.open = false;
   saveAll();
@@ -595,7 +618,7 @@ function deleteSupplement(id) {
 
   state.supplements = state.supplements.filter((item) => item.id !== id);
   Object.keys(state.checks).forEach((dateKey) => {
-    state.checks[dateKey] = state.checks[dateKey].filter((checkedId) => checkedId !== id);
+    state.checks[dateKey] = state.checks[dateKey].filter((checkId) => !isCheckForSupplement(checkId, id));
   });
   saveAll();
   render();
@@ -609,10 +632,16 @@ function togglePause(id) {
 
   supplement.paused = !supplement.paused;
   if (supplement.paused) {
-    state.checks[todayKey] = checkedToday().filter((checkedId) => checkedId !== id);
+    state.checks[todayKey] = (state.checks[todayKey] || []).filter(
+      (checkId) => !isCheckForSupplement(checkId, id)
+    );
   }
   saveAll();
   render();
+}
+
+function isCheckForSupplement(checkId, supplementId) {
+  return checkId === supplementId || checkId.startsWith(`${supplementId}::`);
 }
 
 function applyRefill(value, mode) {
@@ -639,10 +668,16 @@ function applyRefill(value, mode) {
   render();
 }
 
-function groupByTime(supplements) {
+function activeSlots() {
+  return activeItems().flatMap((item) =>
+    (item.times || []).map((time) => ({ supplement: item, time, checkId: `${item.id}::${time}` }))
+  );
+}
+
+function groupSlotsByTime(slots) {
   const order = ["Morgens", "Mittags", "Abends", "Vor dem Training", "Nach dem Training"];
   return order
-    .map((time) => [time, supplements.filter((item) => item.time === time)])
+    .map((time) => [time, slots.filter((slot) => slot.time === time)])
     .filter(([, items]) => items.length);
 }
 
@@ -673,12 +708,12 @@ function calculateStreak() {
 
 function isDayComplete(key) {
   const checks = state.checks[key] || [];
-  const active = activeItems();
-  return active.length > 0 && active.every((item) => checks.includes(item.id));
+  const slots = activeSlots();
+  return slots.length > 0 && slots.every((slot) => checks.includes(slot.checkId));
 }
 
 function checkedToday() {
-  const activeIds = new Set(activeItems().map((item) => item.id));
+  const activeIds = new Set(activeSlots().map((slot) => slot.checkId));
   return (state.checks[todayKey] || []).filter((id) => activeIds.has(id));
 }
 
@@ -743,7 +778,7 @@ function createSupplement(source) {
     name: source.name,
     doseAmount: toNumber(source.doseAmount),
     doseUnit: source.doseUnit || "Kapsel",
-    time: source.time || "Morgens",
+    times: normalizeTimes(source.times || source.time),
     stock: toNumber(source.stock),
     initialStock: toNumber(source.initialStock ?? source.stock),
     stockUnit: source.stockUnit || "Kapseln",
@@ -752,26 +787,51 @@ function createSupplement(source) {
   };
 }
 
+function normalizeTimes(value) {
+  if (Array.isArray(value) && value.length) {
+    return value;
+  }
+  if (typeof value === "string" && value) {
+    return [value];
+  }
+  return ["Morgens"];
+}
+
 function normalizeSupplements(items) {
   return items.map((item) => {
     if ("doseAmount" in item) {
-      return createSupplement({ ...item, id: item.id });
+      return createSupplement(item);
     }
 
     const parsed = parseLegacyDose(item.dose || "1 Kapsel");
-    return {
-      id: item.id || crypto.randomUUID(),
-      name: item.name,
+    return createSupplement({
+      ...item,
       doseAmount: parsed.amount,
       doseUnit: parsed.unit,
-      time: item.time || "Morgens",
-      stock: toNumber(item.stock),
-      initialStock: toNumber(item.initialStock ?? item.stock),
       stockUnit: stockUnitFromDose(parsed.unit),
-      serving: Math.max(0.1, toNumber(item.serving || parsed.amount || 1)),
-      paused: Boolean(item.paused),
-    };
+      serving: item.serving || parsed.amount || 1,
+    });
   });
+}
+
+function migrateChecks(checks, supplements) {
+  const byId = new Map(supplements.map((item) => [item.id, item]));
+  const migrated = {};
+
+  Object.entries(checks).forEach(([dateKey, ids]) => {
+    migrated[dateKey] = ids.map((id) => {
+      if (id.includes("::")) {
+        return id;
+      }
+      const supplement = byId.get(id);
+      if (supplement && supplement.times && supplement.times.length) {
+        return `${id}::${supplement.times[0]}`;
+      }
+      return id;
+    });
+  });
+
+  return migrated;
 }
 
 function createBackupPayload() {

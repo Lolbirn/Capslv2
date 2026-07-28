@@ -152,16 +152,17 @@
               <option>Portion</option>
             </select>
           </label>
-          <label>
-            <span>Zeitpunkt</span>
-            <select id="timeInput">
-              <option>Morgens</option>
-              <option>Mittags</option>
-              <option>Abends</option>
-              <option>Vor dem Training</option>
-              <option>Nach dem Training</option>
-            </select>
-          </label>
+          <div class="wide-field time-field">
+            <span class="field-label">Zeitpunkt</span>
+            <div class="time-toggle-group" id="timeToggleGroup">
+              <button type="button" class="time-toggle" data-time="Morgens">Morgens</button>
+              <button type="button" class="time-toggle" data-time="Mittags">Mittags</button>
+              <button type="button" class="time-toggle" data-time="Abends">Abends</button>
+              <button type="button" class="time-toggle" data-time="Vor dem Training">Vor dem Training</button>
+              <button type="button" class="time-toggle" data-time="Nach dem Training">Nach dem Training</button>
+            </div>
+            <p class="field-hint">Mehrfachauswahl möglich, z. B. Mittags &amp; Abends bei geteilten Dosen.</p>
+          </div>
           <label>
             <span>Vorrat</span>
             <input id="stockInput" type="number" min="0" step="any" placeholder="60" required>

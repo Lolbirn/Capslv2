@@ -508,6 +508,52 @@ h2 {
   font-weight: 850;
 }
 
+.time-field {
+  display: grid;
+  gap: 7px;
+}
+
+.field-label {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 850;
+}
+
+.field-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.time-toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.time-toggle {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(232, 222, 208, 0.95);
+  border-radius: 999px;
+  background: rgba(255, 253, 249, 0.96);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.86rem;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.time-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.time-toggle.is-selected {
+  border-color: rgba(197, 155, 90, 0.7);
+  background: linear-gradient(180deg, #fffaf1, #fff4e5);
+  box-shadow: inset 0 0 0 1px rgba(197, 155, 90, 0.2);
+}
+
 .wide-field {
   grid-column: 1 / -1;
 }
