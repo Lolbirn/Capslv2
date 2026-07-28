@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Capsl Supplement Tracker</title>
+    <link rel="stylesheet" href="styles.css?v=7">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <nav class="nav">
+          <div class="brand-lockup" aria-label="Capsl">
+            <div class="brand-mark" aria-hidden="true">
+              <span class="brand-capsule"></span>
+            </div>
+            <div class="brand-word">
+              <strong>Capsl</strong>
+              <span>Daily Supplement System</span>
+            </div>
+          </div>
+          <details class="app-menu">
+            <summary aria-label="App-Menü">•••</summary>
+            <div class="menu-popover">
+              <button id="exportDataButton" type="button">Daten exportieren</button>
+              <button id="importDataButton" type="button">Daten importieren</button>
+              <button id="resetDayButton" type="button">Tag zurücksetzen</button>
+            </div>
+          </details>
+          <input id="importFileInput" type="file" accept="application/json" hidden>
+        </nav>
+
+        <section class="hero-compact">
+          <div class="hero-copy">
+            <h1>Capsl</h1>
+            <p class="lead"><strong>Dein Stack.</strong> Jeden Tag im Griff.</p>
+          </div>
+          <div class="hero-actions">
+            <button id="openFormButton" class="primary-button" type="button">+ Supplement</button>
+            <button id="showTodayButton" class="secondary-button" type="button">Heute</button>
+          </div>
+        </section>
+      </header>
+
+      <section class="content-grid">
+        <section class="panel routine-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Heute</p>
+              <h2>Tagesroutine</h2>
+            </div>
+            <p id="todayLabel" class="date-label"></p>
+          </div>
+          <section class="daily-summary" aria-label="Tagesübersicht">
+            <div class="summary-progress">
+              <span>Heute erledigt</span>
+              <strong id="completionValue">0%</strong>
+              <div class="progress-track">
+                <div id="completionBar" class="progress-bar"></div>
+              </div>
+            </div>
+            <div class="summary-metrics">
+              <span><strong id="supplementCount">0</strong> Supplements</span>
+              <span><strong id="openDoseCount">0</strong> offen</span>
+              <span><strong id="streakCount">0</strong> Tage Streak</span>
+            </div>
+          </section>
+          <details class="history-panel" aria-label="7-Tage-Historie">
+            <summary class="mini-heading">
+              <span>7 Tage</span>
+              <strong>Historie anzeigen</strong>
+            </summary>
+            <div id="historyList" class="history-list"></div>
+          </details>
+          <div id="routineList" class="routine-list"></div>
+        </section>
+
+        <details class="panel stock-panel" id="stockDetails">
+          <summary class="section-heading">
+            <div>
+              <p class="eyebrow">Vorrat</p>
+              <h2>Vorrat</h2>
+            </div>
+            <span class="low-stock-pill"><strong id="lowStockCount">0</strong> kritisch</span>
+            <span class="paused-pill"><strong id="pausedCount">0</strong> pausiert</span>
+          </summary>
+          <div id="stockAlert" class="stock-alert"></div>
+          <div id="stockList" class="stock-list"></div>
+        </details>
+      </section>
+    </main>
+
+    <div id="formPanel" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" data-close-form></div>
+      <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Neuer Eintrag</p>
+            <h2 id="formTitle">Supplement hinzufügen</h2>
+          </div>
+          <button id="closeFormButton" class="ghost-button icon-button" type="button" aria-label="Schließen">×</button>
+        </div>
+
+        <form id="supplementForm" class="supplement-form">
+          <input id="editIdInput" type="hidden">
+
+          <section class="form-step wide-field">
+            <div>
+              <span class="step-number">1</span>
+              <strong>Supplement wählen</strong>
+            </div>
+            <p>Starte mit einem Preset oder lege ein eigenes Supplement an.</p>
+          </section>
+
+          <div class="template-cards wide-field" id="templateCards" aria-label="Schnellauswahl"></div>
+
+          <button id="customModeButton" class="secondary-button wide-field" type="button">Eigenes Supplement eintragen</button>
+
+          <label class="wide-field">
+            <span>Name</span>
+            <input id="templateInput" list="templateOptions" type="text" placeholder="Vitamin D3, Kreatin, Magnesium..." autocomplete="off" required>
+            <datalist id="templateOptions"></datalist>
+          </label>
+
+          <section class="form-step wide-field">
+            <div>
+              <span class="step-number">2</span>
+              <strong>Dosis & Vorrat feinjustieren</strong>
+            </div>
+          </section>
+
+          <label>
+            <span>Dosis</span>
+            <input id="doseAmountInput" type="number" min="0" step="any" placeholder="1" required>
+          </label>
+          <label>
+            <span>Einheit</span>
+            <select id="doseUnitInput">
+              <option>Kapsel</option>
+              <option>Tablette</option>
+              <option>g</option>
+              <option>mg</option>
+              <option>Scoop</option>
+              <option>Tropfen</option>
+              <option>Portion</option>
+            </select>
+          </label>
+          <label>
+            <span>Zeitpunkt</span>
+            <select id="timeInput">
+              <option>Morgens</option>
+              <option>Mittags</option>
+              <option>Abends</option>
+              <option>Vor dem Training</option>
+              <option>Nach dem Training</option>
+            </select>
+          </label>
+          <label>
+            <span>Vorrat</span>
+            <input id="stockInput" type="number" min="0" step="any" placeholder="60" required>
+          </label>
+          <label>
+            <span>Vorrats-Einheit</span>
+            <select id="stockUnitInput">
+              <option>Kapseln</option>
+              <option>Tabletten</option>
+              <option>g</option>
+              <option>mg</option>
+              <option>Scoops</option>
+              <option>Tropfen</option>
+              <option>Portionen</option>
+            </select>
+          </label>
+          <label>
+            <span>Verbrauch pro Einnahme</span>
+            <input id="servingInput" type="number" min="0.1" step="any" value="1" required>
+          </label>
+          <button id="saveSupplementButton" class="primary-button wide-field" type="submit">Speichern</button>
+        </form>
+      </section>
+    </div>
+
+    <div id="refillPanel" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" data-close-refill></div>
+      <section class="modal-panel compact-modal" role="dialog" aria-modal="true" aria-labelledby="refillTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Vorrat</p>
+            <h2 id="refillTitle">Vorrat auffüllen</h2>
+          </div>
+          <button id="closeRefillButton" class="ghost-button icon-button" type="button" aria-label="Schließen">×</button>
+        </div>
+        <form id="refillForm" class="refill-form">
+          <input id="refillIdInput" type="hidden">
+          <p id="refillDescription" class="refill-description"></p>
+          <div class="refill-options" aria-label="Schnellauswahl">
+            <button type="button" data-refill-mode="full">Voll auffüllen</button>
+            <button type="button" data-refill-add="30">+30</button>
+            <button type="button" data-refill-add="60">+60</button>
+          </div>
+          <label>
+            <span>Eigene Menge hinzufügen</span>
+            <input id="refillAmountInput" type="number" min="0" step="any" placeholder="z. B. 90">
+          </label>
+          <button class="primary-button" type="submit">Menge hinzufügen</button>
+        </form>
+      </section>
+    </div>
+
+    <div id="backupPanel" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" data-close-backup></div>
+      <section class="modal-panel compact-modal" role="dialog" aria-modal="true" aria-labelledby="backupTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Backup</p>
+            <h2 id="backupTitle">Daten sichern</h2>
+          </div>
+          <button id="closeBackupButton" class="ghost-button icon-button" type="button" aria-label="Schließen">×</button>
+        </div>
+        <div class="backup-box">
+          <p id="backupHint" class="refill-description">Kopiere dein Backup oder lade es als Datei herunter.</p>
+          <textarea id="backupTextArea" spellcheck="false" aria-label="Backup-Daten"></textarea>
+          <div class="backup-actions">
+            <button id="downloadBackupButton" class="primary-button" type="button">Backup herunterladen</button>
+            <button id="copyBackupButton" class="secondary-button" type="button">Text kopieren</button>
+            <button id="chooseImportFileButton" class="secondary-button" type="button">Datei wählen</button>
+            <button id="importBackupTextButton" class="secondary-button" type="button">Text importieren</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="app.js?v=19"></script>
+  </body>
+</html>
