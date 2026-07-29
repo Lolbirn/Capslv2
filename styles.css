@@ -1,7 +1,7 @@
 :root {
   color-scheme: light;
   --ink: #17120e;
-  --muted: #7b7068;
+  --muted: #675c54;
   --paper: #fbf7f0;
   --surface: #fffdf9;
   --line: #e8ded0;
@@ -776,14 +776,18 @@ select:focus {
 
 .history-panel summary::after,
 .stock-panel summary::after {
-  content: "+";
-  color: var(--muted);
-  font-weight: 900;
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+  transition: transform 200ms ease;
 }
 
 .history-panel[open] summary::after,
 .stock-panel[open] summary::after {
-  content: "–";
+  transform: rotate(225deg);
 }
 
 .mini-heading {
@@ -852,11 +856,18 @@ select:focus {
 }
 
 .routine-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 8px 0 0;
   color: var(--gold);
   font-size: 0.74rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.routine-group h3 svg {
+  flex-shrink: 0;
 }
 
 .routine-item,
@@ -1153,6 +1164,26 @@ select:focus {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero,
+.content-grid > * {
+  animation: panelIn 380ms ease both;
+}
+
+.content-grid > *:nth-child(2) {
+  animation-delay: 70ms;
 }
 
 @media (max-width: 920px) {

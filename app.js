@@ -284,7 +284,7 @@ function renderRoutine() {
   groups.forEach(([time, slots]) => {
     const group = document.createElement("section");
     group.className = "routine-group";
-    group.innerHTML = `<h3>${escapeHTML(time)}</h3>`;
+    group.innerHTML = `<h3>${timeIcon(time)}<span>${escapeHTML(time)}</span></h3>`;
 
     slots.forEach((slot) => {
       const item = slot.supplement;
@@ -679,6 +679,23 @@ function groupSlotsByTime(slots) {
   return order
     .map((time) => [time, slots.filter((slot) => slot.time === time)])
     .filter(([, items]) => items.length);
+}
+
+function timeIcon(time) {
+  const icons = {
+    Morgens:
+      '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v4M4.2 10.2l1.4 1.4M19.8 10.2l-1.4 1.4M2 18h20M6 18a6 6 0 0 1 12 0"/></svg>',
+    Mittags:
+      '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+    Abends:
+      '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>',
+    "Vor dem Training":
+      '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>',
+    "Nach dem Training":
+      '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6M20 9v6M2 12h2M20 12h2M7 7v10M17 7v10M7 12h10"/></svg>',
+  };
+
+  return icons[time] || "";
 }
 
 function activeItems() {
