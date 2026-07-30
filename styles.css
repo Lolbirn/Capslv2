@@ -96,49 +96,17 @@ button {
   position: relative;
   display: grid;
   place-items: center;
-  width: 56px;
+  width: 42px;
   height: 42px;
-  border: 1px solid rgba(197, 155, 90, 0.38);
-  border-radius: 8px;
-  background:
-    radial-gradient(circle at 28% 20%, rgba(255, 242, 215, 0.18), transparent 24%),
-    linear-gradient(145deg, #14100d 0%, #2a211b 58%, #18120f 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -10px 24px rgba(0, 0, 0, 0.14),
-    0 12px 26px rgba(33, 26, 22, 0.18);
+  border-radius: 10px;
   overflow: hidden;
+  box-shadow: 0 12px 26px rgba(33, 26, 22, 0.18);
 }
 
-.brand-mark::before {
-  content: "";
-  position: absolute;
-  width: 25px;
-  height: 25px;
-  border-radius: 999px;
-  border: 7px solid #f3e0bc;
-  border-right-color: transparent;
-  border-bottom-color: #caa05f;
-  transform: rotate(-28deg);
-  box-shadow:
-    inset 0 0 0 1px rgba(33, 26, 22, 0.08),
-    0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.brand-mark::after {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 7px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #caa05f, #f1d29c);
-  transform: translate(15px, -12px) rotate(-28deg);
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.24);
-  opacity: 0.95;
-}
-
-.brand-capsule {
-  display: none;
+.brand-mark-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .brand-word {
@@ -1254,7 +1222,7 @@ select:focus {
   }
 
   .brand-mark {
-    width: 52px;
+    width: 40px;
     height: 40px;
   }
 
