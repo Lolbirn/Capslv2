@@ -34,6 +34,9 @@ const state = {
 };
 state.checks = migrateChecks(loadJSON(CHECKS_KEY, loadFirst(OLD_CHECK_KEYS, {})), state.supplements);
 
+let pendingDelete = null;
+let pendingDeleteTimer = null;
+
 const elements = {
   openFormButton: document.querySelector("#openFormButton"),
   closeFormButton: document.querySelector("#closeFormButton"),
@@ -85,6 +88,9 @@ const elements = {
   lowStockCount: document.querySelector("#lowStockCount"),
   pausedCount: document.querySelector("#pausedCount"),
   streakCount: document.querySelector("#streakCount"),
+  undoToast: document.querySelector("#undoToast"),
+  undoToastMessage: document.querySelector("#undoToastMessage"),
+  undoToastButton: document.querySelector("#undoToastButton"),
 };
 
 renderTemplateOptions();
@@ -135,6 +141,7 @@ elements.showTodayButton.addEventListener("click", () => {
 });
 
 elements.resetDayButton.addEventListener("click", resetDay);
+elements.undoToastButton.addEventListener("click", undoDelete);
 elements.exportDataButton.addEventListener("click", () => openBackupDialog("export"));
 elements.importDataButton.addEventListener("click", () => openBackupDialog("import"));
 elements.importFileInput.addEventListener("change", importData);
@@ -607,21 +614,58 @@ function undoStockFor(id) {
 }
 
 function deleteSupplement(id) {
-  const supplement = state.supplements.find((item) => item.id === id);
-  if (!supplement) {
+  const index = state.supplements.findIndex((item) => item.id === id);
+  if (index === -1) {
     return;
   }
 
-  if (!confirm(`"${supplement.name}" wirklich löschen? Das kann nicht rückgängig gemacht werden.`)) {
-    return;
-  }
+  finalizePendingDelete();
 
-  state.supplements = state.supplements.filter((item) => item.id !== id);
+  const [supplement] = state.supplements.splice(index, 1);
+  const removedChecks = {};
   Object.keys(state.checks).forEach((dateKey) => {
+    const removed = state.checks[dateKey].filter((checkId) => isCheckForSupplement(checkId, id));
+    if (removed.length) {
+      removedChecks[dateKey] = removed;
+    }
     state.checks[dateKey] = state.checks[dateKey].filter((checkId) => !isCheckForSupplement(checkId, id));
   });
+
   saveAll();
   render();
+  showUndoToast(supplement, index, removedChecks);
+}
+
+function showUndoToast(supplement, index, removedChecks) {
+  pendingDelete = { supplement, index, removedChecks };
+  elements.undoToastMessage.textContent = `„${supplement.name}“ gelöscht`;
+  elements.undoToast.hidden = false;
+  pendingDeleteTimer = setTimeout(finalizePendingDelete, 6000);
+}
+
+function undoDelete() {
+  if (!pendingDelete) {
+    return;
+  }
+
+  const { supplement, index, removedChecks } = pendingDelete;
+  state.supplements.splice(Math.min(index, state.supplements.length), 0, supplement);
+  Object.entries(removedChecks).forEach(([dateKey, ids]) => {
+    state.checks[dateKey] = [...new Set([...(state.checks[dateKey] || []), ...ids])];
+  });
+
+  clearTimeout(pendingDeleteTimer);
+  pendingDelete = null;
+  elements.undoToast.hidden = true;
+
+  saveAll();
+  render();
+}
+
+function finalizePendingDelete() {
+  clearTimeout(pendingDeleteTimer);
+  pendingDelete = null;
+  elements.undoToast.hidden = true;
 }
 
 function togglePause(id) {
