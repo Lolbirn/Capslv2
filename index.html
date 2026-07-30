@@ -23,15 +23,16 @@
             </div>
             <div class="brand-word">
               <strong>Capsl</strong>
-              <span>Daily Supplement System</span>
+              <span data-i18n="tagline">Daily Supplement System</span>
             </div>
           </div>
           <details class="app-menu">
-            <summary aria-label="App-Menü">•••</summary>
+            <summary aria-label="App-Menü" data-i18n-aria-label="appMenuLabel">•••</summary>
             <div class="menu-popover">
-              <button id="exportDataButton" type="button">Daten exportieren</button>
-              <button id="importDataButton" type="button">Daten importieren</button>
-              <button id="resetDayButton" type="button">Tag zurücksetzen</button>
+              <button id="exportDataButton" type="button" data-i18n="exportData">Daten exportieren</button>
+              <button id="importDataButton" type="button" data-i18n="importData">Daten importieren</button>
+              <button id="resetDayButton" type="button" data-i18n="resetDay">Tag zurücksetzen</button>
+              <button id="languageToggleButton" type="button">English</button>
             </div>
           </details>
           <input id="importFileInput" type="file" accept="application/json" hidden>
@@ -40,11 +41,11 @@
         <section class="hero-compact">
           <div class="hero-copy">
             <h1>Capsl</h1>
-            <p class="lead"><strong>Dein Stack.</strong> Jeden Tag im Griff.</p>
+            <p class="lead" data-i18n-html="leadHtml"><strong>Dein Stack.</strong> Jeden Tag im Griff.</p>
           </div>
           <div class="hero-actions">
-            <button id="openFormButton" class="primary-button" type="button">+ Supplement</button>
-            <button id="showTodayButton" class="secondary-button" type="button">Heute</button>
+            <button id="openFormButton" class="primary-button" type="button" data-i18n="addSupplement">+ Supplement</button>
+            <button id="showTodayButton" class="secondary-button" type="button" data-i18n="today">Heute</button>
           </div>
         </section>
       </header>
@@ -53,29 +54,29 @@
         <section class="panel routine-panel">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Heute</p>
-              <h2>Tagesroutine</h2>
+              <p class="eyebrow" data-i18n="todayEyebrow">Heute</p>
+              <h2 data-i18n="routineTitle">Tagesroutine</h2>
             </div>
             <p id="todayLabel" class="date-label"></p>
           </div>
-          <section class="daily-summary" aria-label="Tagesübersicht">
+          <section class="daily-summary" aria-label="Tagesübersicht" data-i18n-aria-label="dailySummaryLabel">
             <div class="summary-progress">
-              <span>Heute erledigt</span>
+              <span data-i18n="doneToday">Heute erledigt</span>
               <strong id="completionValue">0%</strong>
               <div class="progress-track">
                 <div id="completionBar" class="progress-bar"></div>
               </div>
             </div>
             <div class="summary-metrics">
-              <span><strong id="supplementCount">0</strong> Supplements</span>
-              <span><strong id="openDoseCount">0</strong> offen</span>
-              <span><strong id="streakCount">0</strong> Tage Streak</span>
+              <span><strong id="supplementCount">0</strong> <span data-i18n="supplementsLabel">Supplements</span></span>
+              <span><strong id="openDoseCount">0</strong> <span data-i18n="openLabel">offen</span></span>
+              <span><strong id="streakCount">0</strong> <span data-i18n="streakLabel">Tage Streak</span></span>
             </div>
           </section>
-          <details class="history-panel" aria-label="7-Tage-Historie">
+          <details class="history-panel" aria-label="7-Tage-Historie" data-i18n-aria-label="historyLabel">
             <summary class="mini-heading">
-              <span>7 Tage</span>
-              <strong>Historie anzeigen</strong>
+              <span data-i18n="sevenDays">7 Tage</span>
+              <strong data-i18n="showHistory">Historie anzeigen</strong>
             </summary>
             <div id="historyList" class="history-list"></div>
           </details>
@@ -85,11 +86,11 @@
         <details class="panel stock-panel" id="stockDetails">
           <summary class="section-heading">
             <div>
-              <p class="eyebrow">Vorrat</p>
-              <h2>Vorrat</h2>
+              <p class="eyebrow" data-i18n="stockEyebrow">Vorrat</p>
+              <h2 data-i18n="stockTitle">Vorrat</h2>
             </div>
-            <span class="low-stock-pill"><strong id="lowStockCount">0</strong> kritisch</span>
-            <span class="paused-pill"><strong id="pausedCount">0</strong> pausiert</span>
+            <span class="low-stock-pill"><strong id="lowStockCount">0</strong> <span data-i18n="critical">kritisch</span></span>
+            <span class="paused-pill"><strong id="pausedCount">0</strong> <span data-i18n="paused">pausiert</span></span>
           </summary>
           <div id="stockAlert" class="stock-alert"></div>
           <div id="stockList" class="stock-list"></div>
@@ -102,10 +103,10 @@
       <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="formTitle">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Neuer Eintrag</p>
-            <h2 id="formTitle">Supplement hinzufügen</h2>
+            <p class="eyebrow" data-i18n="newEntryEyebrow">Neuer Eintrag</p>
+            <h2 id="formTitle" data-i18n="addSupplementTitle">Supplement hinzufügen</h2>
           </div>
-          <button id="closeFormButton" class="ghost-button icon-button" type="button" aria-label="Schließen">×</button>
+          <button id="closeFormButton" class="ghost-button icon-button" type="button" aria-label="Schließen" data-i18n-aria-label="close">×</button>
         </div>
 
         <form id="supplementForm" class="supplement-form">
@@ -114,46 +115,46 @@
           <section class="form-step wide-field">
             <div>
               <span class="step-number">1</span>
-              <strong>Supplement wählen</strong>
+              <strong data-i18n="step1Heading">Supplement wählen</strong>
             </div>
-            <p>Starte mit einem Preset oder lege ein eigenes Supplement an.</p>
+            <p data-i18n="step1Hint">Starte mit einem Preset oder lege ein eigenes Supplement an.</p>
           </section>
 
-          <div class="template-cards wide-field" id="templateCards" aria-label="Schnellauswahl"></div>
+          <div class="template-cards wide-field" id="templateCards" aria-label="Schnellauswahl" data-i18n-aria-label="quickSelectLabel"></div>
 
-          <button id="customModeButton" class="secondary-button wide-field" type="button">Eigenes Supplement eintragen</button>
+          <button id="customModeButton" class="secondary-button wide-field" type="button" data-i18n="customMode">Eigenes Supplement eintragen</button>
 
           <label class="wide-field">
-            <span>Name</span>
-            <input id="templateInput" list="templateOptions" type="text" placeholder="Vitamin D3, Kreatin, Magnesium..." autocomplete="off" required>
+            <span data-i18n="nameLabel">Name</span>
+            <input id="templateInput" list="templateOptions" type="text" placeholder="Vitamin D3, Kreatin, Magnesium..." data-i18n-placeholder="namePlaceholder" autocomplete="off" required>
             <datalist id="templateOptions"></datalist>
           </label>
 
           <section class="form-step wide-field">
             <div>
               <span class="step-number">2</span>
-              <strong>Dosis & Vorrat feinjustieren</strong>
+              <strong data-i18n="step2Heading">Dosis & Vorrat feinjustieren</strong>
             </div>
           </section>
 
           <label>
-            <span>Dosis</span>
+            <span data-i18n="doseLabel">Dosis</span>
             <input id="doseAmountInput" type="number" min="0" step="any" placeholder="1" required>
           </label>
           <label>
-            <span>Einheit</span>
+            <span data-i18n="unitLabel">Einheit</span>
             <select id="doseUnitInput">
-              <option>Kapsel</option>
-              <option>Tablette</option>
-              <option>g</option>
-              <option>mg</option>
-              <option>Scoop</option>
-              <option>Tropfen</option>
-              <option>Portion</option>
+              <option value="Kapsel" data-unit="Kapsel" data-unit-form="singular">Kapsel</option>
+              <option value="Tablette" data-unit="Tablette" data-unit-form="singular">Tablette</option>
+              <option value="g" data-unit="g" data-unit-form="singular">g</option>
+              <option value="mg" data-unit="mg" data-unit-form="singular">mg</option>
+              <option value="Scoop" data-unit="Scoop" data-unit-form="singular">Scoop</option>
+              <option value="Tropfen" data-unit="Tropfen" data-unit-form="singular">Tropfen</option>
+              <option value="Portion" data-unit="Portion" data-unit-form="singular">Portion</option>
             </select>
           </label>
           <div class="wide-field time-field">
-            <span class="field-label">Zeitpunkt</span>
+            <span class="field-label" data-i18n="timeLabel">Zeitpunkt</span>
             <div class="time-toggle-group" id="timeToggleGroup">
               <button type="button" class="time-toggle" data-time="Morgens">Morgens</button>
               <button type="button" class="time-toggle" data-time="Mittags">Mittags</button>
@@ -161,29 +162,29 @@
               <button type="button" class="time-toggle" data-time="Vor dem Training">Vor dem Training</button>
               <button type="button" class="time-toggle" data-time="Nach dem Training">Nach dem Training</button>
             </div>
-            <p class="field-hint">Mehrfachauswahl möglich, z. B. Mittags &amp; Abends bei geteilten Dosen.</p>
+            <p class="field-hint" data-i18n="timeHint">Mehrfachauswahl möglich, z. B. Mittags &amp; Abends bei geteilten Dosen.</p>
           </div>
           <label>
-            <span>Vorrat</span>
+            <span data-i18n="stockLabel">Vorrat</span>
             <input id="stockInput" type="number" min="0" step="any" placeholder="60" required>
           </label>
           <label>
-            <span>Vorrats-Einheit</span>
+            <span data-i18n="stockUnitLabel">Vorrats-Einheit</span>
             <select id="stockUnitInput">
-              <option>Kapseln</option>
-              <option>Tabletten</option>
-              <option>g</option>
-              <option>mg</option>
-              <option>Scoops</option>
-              <option>Tropfen</option>
-              <option>Portionen</option>
+              <option value="Kapseln" data-unit="Kapsel" data-unit-form="plural">Kapseln</option>
+              <option value="Tabletten" data-unit="Tablette" data-unit-form="plural">Tabletten</option>
+              <option value="g" data-unit="g" data-unit-form="plural">g</option>
+              <option value="mg" data-unit="mg" data-unit-form="plural">mg</option>
+              <option value="Scoops" data-unit="Scoop" data-unit-form="plural">Scoops</option>
+              <option value="Tropfen" data-unit="Tropfen" data-unit-form="plural">Tropfen</option>
+              <option value="Portionen" data-unit="Portion" data-unit-form="plural">Portionen</option>
             </select>
           </label>
           <label>
-            <span>Verbrauch pro Einnahme</span>
+            <span data-i18n="servingLabel">Verbrauch pro Einnahme</span>
             <input id="servingInput" type="number" min="0.1" step="any" value="1" required>
           </label>
-          <button id="saveSupplementButton" class="primary-button wide-field" type="submit">Speichern</button>
+          <button id="saveSupplementButton" class="primary-button wide-field" type="submit" data-i18n="save">Speichern</button>
         </form>
       </section>
     </div>
@@ -193,24 +194,24 @@
       <section class="modal-panel compact-modal" role="dialog" aria-modal="true" aria-labelledby="refillTitle">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Vorrat</p>
-            <h2 id="refillTitle">Vorrat auffüllen</h2>
+            <p class="eyebrow" data-i18n="stockEyebrow">Vorrat</p>
+            <h2 id="refillTitle" data-i18n="refillStockTitle">Vorrat auffüllen</h2>
           </div>
-          <button id="closeRefillButton" class="ghost-button icon-button" type="button" aria-label="Schließen">×</button>
+          <button id="closeRefillButton" class="ghost-button icon-button" type="button" aria-label="Schließen" data-i18n-aria-label="close">×</button>
         </div>
         <form id="refillForm" class="refill-form">
           <input id="refillIdInput" type="hidden">
           <p id="refillDescription" class="refill-description"></p>
-          <div class="refill-options" aria-label="Schnellauswahl">
-            <button type="button" data-refill-mode="full">Voll auffüllen</button>
+          <div class="refill-options" aria-label="Schnellauswahl" data-i18n-aria-label="quickSelectLabel">
+            <button type="button" data-refill-mode="full" data-i18n="fillFull">Voll auffüllen</button>
             <button type="button" data-refill-add="30">+30</button>
             <button type="button" data-refill-add="60">+60</button>
           </div>
           <label>
-            <span>Eigene Menge hinzufügen</span>
-            <input id="refillAmountInput" type="number" min="0" step="any" placeholder="z. B. 90">
+            <span data-i18n="customAmountLabel">Eigene Menge hinzufügen</span>
+            <input id="refillAmountInput" type="number" min="0" step="any" placeholder="z. B. 90" data-i18n-placeholder="customAmountPlaceholder">
           </label>
-          <button class="primary-button" type="submit">Menge hinzufügen</button>
+          <button class="primary-button" type="submit" data-i18n="addAmount">Menge hinzufügen</button>
         </form>
       </section>
     </div>
@@ -220,19 +221,19 @@
       <section class="modal-panel compact-modal" role="dialog" aria-modal="true" aria-labelledby="backupTitle">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Backup</p>
-            <h2 id="backupTitle">Daten sichern</h2>
+            <p class="eyebrow" data-i18n="backupEyebrow">Backup</p>
+            <h2 id="backupTitle" data-i18n="backupTitle">Daten sichern</h2>
           </div>
-          <button id="closeBackupButton" class="ghost-button icon-button" type="button" aria-label="Schließen">×</button>
+          <button id="closeBackupButton" class="ghost-button icon-button" type="button" aria-label="Schließen" data-i18n-aria-label="close">×</button>
         </div>
         <div class="backup-box">
-          <p id="backupHint" class="refill-description">Kopiere dein Backup oder lade es als Datei herunter.</p>
-          <textarea id="backupTextArea" spellcheck="false" aria-label="Backup-Daten"></textarea>
+          <p id="backupHint" class="refill-description" data-i18n="backupHintExport">Kopiere dein Backup oder lade es als Datei herunter.</p>
+          <textarea id="backupTextArea" spellcheck="false" aria-label="Backup-Daten" data-i18n-aria-label="backupDataLabel"></textarea>
           <div class="backup-actions">
-            <button id="downloadBackupButton" class="primary-button" type="button">Backup herunterladen</button>
-            <button id="copyBackupButton" class="secondary-button" type="button">Text kopieren</button>
-            <button id="chooseImportFileButton" class="secondary-button" type="button">Datei wählen</button>
-            <button id="importBackupTextButton" class="secondary-button" type="button">Text importieren</button>
+            <button id="downloadBackupButton" class="primary-button" type="button" data-i18n="downloadBackup">Backup herunterladen</button>
+            <button id="copyBackupButton" class="secondary-button" type="button" data-i18n="copyText">Text kopieren</button>
+            <button id="chooseImportFileButton" class="secondary-button" type="button" data-i18n="chooseFile">Datei wählen</button>
+            <button id="importBackupTextButton" class="secondary-button" type="button" data-i18n="importText">Text importieren</button>
           </div>
         </div>
       </section>
@@ -240,7 +241,7 @@
 
     <div id="undoToast" class="undo-toast" role="status" aria-live="polite" hidden>
       <span id="undoToastMessage"></span>
-      <button id="undoToastButton" type="button">Rückgängig</button>
+      <button id="undoToastButton" type="button" data-i18n="undo">Rückgängig</button>
     </div>
 
     <script src="app.js"></script>

@@ -677,7 +677,7 @@ select:focus {
 }
 
 .summary-progress span,
-.summary-metrics span {
+.summary-metrics > span {
   color: var(--muted);
   font-size: 0.8rem;
   font-weight: 850;
@@ -696,7 +696,7 @@ select:focus {
   justify-content: flex-end;
 }
 
-.summary-metrics span,
+.summary-metrics > span,
 .low-stock-pill,
 .paused-pill {
   display: inline-flex;
@@ -1292,7 +1292,7 @@ select:focus {
     padding: 10px;
   }
 
-  .summary-metrics span {
+  .summary-metrics > span {
     min-height: 28px;
   }
 

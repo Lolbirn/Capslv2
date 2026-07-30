@@ -6,8 +6,308 @@ if ("serviceWorker" in navigator) {
 
 const STORAGE_KEY = "capsl-supplements-v1";
 const CHECKS_KEY = "capsl-checks-v1";
+const LANG_KEY = "capsl-lang-v1";
 const OLD_STORAGE_KEYS = ["supproutine-supplements-v2", "supproutine-supplements-v1", "coredose-supplements-v1"];
 const OLD_CHECK_KEYS = ["supproutine-checks-v2", "supproutine-checks-v1", "coredose-checks-v1"];
+
+let currentLang = localStorage.getItem(LANG_KEY) === "en" ? "en" : "de";
+
+const TRANSLATIONS = {
+  de: {
+    appMenuLabel: "App-Menü",
+    exportData: "Daten exportieren",
+    importData: "Daten importieren",
+    resetDay: "Tag zurücksetzen",
+    tagline: "Daily Supplement System",
+    leadHtml: "<strong>Dein Stack.</strong> Jeden Tag im Griff.",
+    addSupplement: "+ Supplement",
+    today: "Heute",
+    todayEyebrow: "Heute",
+    routineTitle: "Tagesroutine",
+    dailySummaryLabel: "Tagesübersicht",
+    doneToday: "Heute erledigt",
+    supplementsLabel: "Supplements",
+    openLabel: "offen",
+    streakLabel: "Tage Streak",
+    historyLabel: "7-Tage-Historie",
+    sevenDays: "7 Tage",
+    showHistory: "Historie anzeigen",
+    stockEyebrow: "Vorrat",
+    stockTitle: "Vorrat",
+    critical: "kritisch",
+    paused: "pausiert",
+    newEntryEyebrow: "Neuer Eintrag",
+    addSupplementTitle: "Supplement hinzufügen",
+    editSupplementTitle: "Supplement bearbeiten",
+    close: "Schließen",
+    step1Heading: "Supplement wählen",
+    step1Hint: "Starte mit einem Preset oder lege ein eigenes Supplement an.",
+    quickSelectLabel: "Schnellauswahl",
+    customMode: "Eigenes Supplement eintragen",
+    nameLabel: "Name",
+    namePlaceholder: "Vitamin D3, Kreatin, Magnesium...",
+    step2Heading: "Dosis & Vorrat feinjustieren",
+    doseLabel: "Dosis",
+    unitLabel: "Einheit",
+    timeLabel: "Zeitpunkt",
+    timeHint: "Mehrfachauswahl möglich, z. B. Mittags & Abends bei geteilten Dosen.",
+    stockLabel: "Vorrat",
+    stockUnitLabel: "Vorrats-Einheit",
+    servingLabel: "Verbrauch pro Einnahme",
+    save: "Speichern",
+    saveChanges: "Änderungen speichern",
+    refillStockTitle: "Vorrat auffüllen",
+    fillFull: "Voll auffüllen",
+    customAmountLabel: "Eigene Menge hinzufügen",
+    customAmountPlaceholder: "z. B. 90",
+    addAmount: "Menge hinzufügen",
+    backupEyebrow: "Backup",
+    backupTitle: "Daten sichern",
+    backupDataLabel: "Backup-Daten",
+    backupHintExport: "Kopiere dein Backup oder lade es als Datei herunter.",
+    backupHintImport: "Füge ein Capsl-Backup ein oder wähle eine JSON-Datei.",
+    backupTextPlaceholder: "Backup-Text hier einfügen...",
+    downloadBackup: "Backup herunterladen",
+    copyText: "Text kopieren",
+    chooseFile: "Datei wählen",
+    importText: "Text importieren",
+    undo: "Rückgängig",
+    emptyNoSupplementsTitle: "Noch nichts eingetragen",
+    emptyNoSupplementsBody: "Leg dein erstes Supplement an und starte deine Routine.",
+    emptyAddButton: "+ Supplement hinzufügen",
+    emptyAllPausedTitle: "Alle Supplements pausiert",
+    emptyAllPausedBody: "Aktiviere eins im Vorrat, um es wieder in deiner Routine zu sehen.",
+    emptyStock: "Vorrat erscheint hier, sobald du dein erstes Supplement anlegst.",
+    completionTitle: "Heute abgeschlossen",
+    completionBody: "Dein Stack ist erledigt.",
+    daysLeft: (days) => `reicht noch ${days} Tage`,
+    markAsTaken: (name) => `${name} als eingenommen markieren`,
+    done: "Erledigt",
+    taken: "Eingenommen",
+    itemActions: (name) => `${name} Aktionen`,
+    edit: "Bearbeiten",
+    pause: "Pausieren",
+    activate: "Aktivieren",
+    deleteAction: "Löschen",
+    almostEmpty: (count) => `${count} bald leer`,
+    stockRemaining: (stock, serving) => `${stock} übrig · ${serving} pro Einnahme`,
+    statusPaused: "Pausiert",
+    statusLow: "Knapp",
+    statusStable: "Stabil",
+    daysUnit: (days) => `${days} Tage`,
+    refill: "Auffüllen",
+    refillDescription: (name, stock) => `${name}: aktuell ${stock} übrig.`,
+    deletedToast: (name) => `„${name}“ gelöscht`,
+    backupFilePrepared: "Backup-Datei wurde vorbereitet.",
+    backupDownloadFailed: "Download fehlgeschlagen. Bitte prüfe den Backup-Text.",
+    backupCopied: "Backup-Text wurde kopiert.",
+    backupCopiedFallback: "Backup-Text wurde zum Kopieren markiert.",
+    backupImported: "Backup wurde importiert.",
+    backupImportFailed: "Import fehlgeschlagen. Bitte prüfe den Backup-Text.",
+    fileImportFailed: "Import fehlgeschlagen. Bitte wähle eine gültige Capsl-Backup-Datei.",
+    languageToggle: "English",
+  },
+  en: {
+    appMenuLabel: "App menu",
+    exportData: "Export data",
+    importData: "Import data",
+    resetDay: "Reset day",
+    tagline: "Daily Supplement System",
+    leadHtml: "<strong>Your stack.</strong> Handled every day.",
+    addSupplement: "+ Supplement",
+    today: "Today",
+    todayEyebrow: "Today",
+    routineTitle: "Daily routine",
+    dailySummaryLabel: "Daily overview",
+    doneToday: "Done today",
+    supplementsLabel: "Supplements",
+    openLabel: "open",
+    streakLabel: "day streak",
+    historyLabel: "7-day history",
+    sevenDays: "7 days",
+    showHistory: "Show history",
+    stockEyebrow: "Stock",
+    stockTitle: "Stock",
+    critical: "critical",
+    paused: "paused",
+    newEntryEyebrow: "New entry",
+    addSupplementTitle: "Add supplement",
+    editSupplementTitle: "Edit supplement",
+    close: "Close",
+    step1Heading: "Choose a supplement",
+    step1Hint: "Start with a preset or add your own supplement.",
+    quickSelectLabel: "Quick select",
+    customMode: "Add your own supplement",
+    nameLabel: "Name",
+    namePlaceholder: "Vitamin D3, creatine, magnesium...",
+    step2Heading: "Fine-tune dose & stock",
+    doseLabel: "Dose",
+    unitLabel: "Unit",
+    timeLabel: "Time",
+    timeHint: "Multiple selections possible, e.g. noon & evening for split doses.",
+    stockLabel: "Stock",
+    stockUnitLabel: "Stock unit",
+    servingLabel: "Amount per dose",
+    save: "Save",
+    saveChanges: "Save changes",
+    refillStockTitle: "Refill stock",
+    fillFull: "Fill completely",
+    customAmountLabel: "Add a custom amount",
+    customAmountPlaceholder: "e.g. 90",
+    addAmount: "Add amount",
+    backupEyebrow: "Backup",
+    backupTitle: "Back up data",
+    backupDataLabel: "Backup data",
+    backupHintExport: "Copy your backup or download it as a file.",
+    backupHintImport: "Paste a Capsl backup or choose a JSON file.",
+    backupTextPlaceholder: "Paste backup text here...",
+    downloadBackup: "Download backup",
+    copyText: "Copy text",
+    chooseFile: "Choose file",
+    importText: "Import text",
+    undo: "Undo",
+    emptyNoSupplementsTitle: "Nothing added yet",
+    emptyNoSupplementsBody: "Add your first supplement and start your routine.",
+    emptyAddButton: "+ Add supplement",
+    emptyAllPausedTitle: "All supplements paused",
+    emptyAllPausedBody: "Activate one in Stock to see it in your routine again.",
+    emptyStock: "Your stock will appear here once you add your first supplement.",
+    completionTitle: "Done for today",
+    completionBody: "Your stack is complete.",
+    daysLeft: (days) => `${days} days left`,
+    markAsTaken: (name) => `Mark ${name} as taken`,
+    done: "Done",
+    taken: "Taken",
+    itemActions: (name) => `${name} actions`,
+    edit: "Edit",
+    pause: "Pause",
+    activate: "Activate",
+    deleteAction: "Delete",
+    almostEmpty: (count) => `${count} running low`,
+    stockRemaining: (stock, serving) => `${stock} left · ${serving} per dose`,
+    statusPaused: "Paused",
+    statusLow: "Low",
+    statusStable: "Stable",
+    daysUnit: (days) => `${days} days`,
+    refill: "Refill",
+    refillDescription: (name, stock) => `${name}: currently ${stock} left.`,
+    deletedToast: (name) => `"${name}" deleted`,
+    backupFilePrepared: "Backup file is ready.",
+    backupDownloadFailed: "Download failed. Please check the backup text.",
+    backupCopied: "Backup text copied.",
+    backupCopiedFallback: "Backup text selected for copying.",
+    backupImported: "Backup imported.",
+    backupImportFailed: "Import failed. Please check the backup text.",
+    fileImportFailed: "Import failed. Please choose a valid Capsl backup file.",
+    languageToggle: "Deutsch",
+  },
+};
+
+const TIME_LABELS = {
+  de: {
+    Morgens: "Morgens",
+    Mittags: "Mittags",
+    Abends: "Abends",
+    "Vor dem Training": "Vor dem Training",
+    "Nach dem Training": "Nach dem Training",
+  },
+  en: {
+    Morgens: "Morning",
+    Mittags: "Midday",
+    Abends: "Evening",
+    "Vor dem Training": "Pre-workout",
+    "Nach dem Training": "Post-workout",
+  },
+};
+
+const UNIT_LABELS = {
+  de: {
+    Kapsel: { singular: "Kapsel", plural: "Kapseln" },
+    Tablette: { singular: "Tablette", plural: "Tabletten" },
+    g: { singular: "g", plural: "g" },
+    mg: { singular: "mg", plural: "mg" },
+    Scoop: { singular: "Scoop", plural: "Scoops" },
+    Tropfen: { singular: "Tropfen", plural: "Tropfen" },
+    Portion: { singular: "Portion", plural: "Portionen" },
+  },
+  en: {
+    Kapsel: { singular: "capsule", plural: "capsules" },
+    Tablette: { singular: "tablet", plural: "tablets" },
+    g: { singular: "g", plural: "g" },
+    mg: { singular: "mg", plural: "mg" },
+    Scoop: { singular: "scoop", plural: "scoops" },
+    Tropfen: { singular: "drop", plural: "drops" },
+    Portion: { singular: "serving", plural: "servings" },
+  },
+};
+
+const STOCK_UNIT_TO_DOSE_UNIT = {
+  Kapseln: "Kapsel",
+  Kapsel: "Kapsel",
+  Tabletten: "Tablette",
+  Tablette: "Tablette",
+  Scoops: "Scoop",
+  Scoop: "Scoop",
+  Portionen: "Portion",
+  Portion: "Portion",
+  Tropfen: "Tropfen",
+  g: "g",
+  mg: "mg",
+};
+
+function t(key, ...args) {
+  const entry = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) ?? TRANSLATIONS.de[key];
+  return typeof entry === "function" ? entry(...args) : entry;
+}
+
+function timeLabel(time) {
+  return (TIME_LABELS[currentLang] && TIME_LABELS[currentLang][time]) || time;
+}
+
+function dateLocale() {
+  return currentLang === "en" ? "en-US" : "de-DE";
+}
+
+function setLanguage(lang) {
+  currentLang = lang === "en" ? "en" : "de";
+  localStorage.setItem(LANG_KEY, currentLang);
+  applyStaticTranslations();
+  renderTemplateCards();
+  render();
+}
+
+function applyStaticTranslations() {
+  document.documentElement.lang = currentLang;
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+
+  document.querySelectorAll("[data-i18n-html]").forEach((element) => {
+    element.innerHTML = t(element.dataset.i18nHtml);
+  });
+
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    element.placeholder = t(element.dataset.i18nPlaceholder);
+  });
+
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+  });
+
+  document.querySelectorAll(".time-toggle[data-time]").forEach((button) => {
+    button.textContent = timeLabel(button.dataset.time);
+  });
+
+  document.querySelectorAll("[data-unit][data-unit-form]").forEach((option) => {
+    const entry = (UNIT_LABELS[currentLang] && UNIT_LABELS[currentLang][option.dataset.unit]) || {};
+    option.textContent = entry[option.dataset.unitForm] || option.dataset.unit;
+  });
+
+  if (elements.languageToggleButton) {
+    elements.languageToggleButton.textContent = t("languageToggle");
+  }
+}
 
 const todayKey = toDateKey(new Date());
 
@@ -91,6 +391,7 @@ const elements = {
   undoToast: document.querySelector("#undoToast"),
   undoToastMessage: document.querySelector("#undoToastMessage"),
   undoToastButton: document.querySelector("#undoToastButton"),
+  languageToggleButton: document.querySelector("#languageToggleButton"),
 };
 
 renderTemplateOptions();
@@ -142,6 +443,7 @@ elements.showTodayButton.addEventListener("click", () => {
 
 elements.resetDayButton.addEventListener("click", resetDay);
 elements.undoToastButton.addEventListener("click", undoDelete);
+elements.languageToggleButton.addEventListener("click", () => setLanguage(currentLang === "de" ? "en" : "de"));
 elements.exportDataButton.addEventListener("click", () => openBackupDialog("export"));
 elements.importDataButton.addEventListener("click", () => openBackupDialog("import"));
 elements.importFileInput.addEventListener("change", importData);
@@ -205,12 +507,13 @@ saveAll();
 render();
 
 function render() {
-  elements.todayLabel.textContent = new Intl.DateTimeFormat("de-DE", {
+  elements.todayLabel.textContent = new Intl.DateTimeFormat(dateLocale(), {
     weekday: "long",
     day: "2-digit",
     month: "long",
   }).format(new Date());
 
+  applyStaticTranslations();
   renderStats();
   renderHistory();
   renderRoutine();
@@ -255,8 +558,8 @@ function renderCompletionState(total, done) {
   stateNode.innerHTML = `
     <span class="completion-check">✓</span>
     <div>
-      <strong>Heute abgeschlossen</strong>
-      <span>Dein Stack ist erledigt.</span>
+      <strong>${t("completionTitle")}</strong>
+      <span>${t("completionBody")}</span>
     </div>
   `;
   document.querySelector(".daily-summary").append(stateNode);
@@ -268,9 +571,9 @@ function renderRoutine() {
   if (!state.supplements.length) {
     elements.routineList.innerHTML = `
       <div class="empty-state">
-        <strong>Noch nichts eingetragen</strong>
-        <p>Leg dein erstes Supplement an und starte deine Routine.</p>
-        <button id="emptyStateAddButton" class="primary-button" type="button">+ Supplement hinzufügen</button>
+        <strong>${t("emptyNoSupplementsTitle")}</strong>
+        <p>${t("emptyNoSupplementsBody")}</p>
+        <button id="emptyStateAddButton" class="primary-button" type="button">${t("emptyAddButton")}</button>
       </div>
     `;
     elements.routineList.querySelector("#emptyStateAddButton").addEventListener("click", () => openSupplementForm());
@@ -280,8 +583,8 @@ function renderRoutine() {
   if (!activeItems().length) {
     elements.routineList.innerHTML = `
       <div class="empty-state">
-        <strong>Alle Supplements pausiert</strong>
-        <p>Aktiviere eins im Vorrat, um es wieder in deiner Routine zu sehen.</p>
+        <strong>${t("emptyAllPausedTitle")}</strong>
+        <p>${t("emptyAllPausedBody")}</p>
       </div>
     `;
     return;
@@ -291,7 +594,7 @@ function renderRoutine() {
   groups.forEach(([time, slots]) => {
     const group = document.createElement("section");
     group.className = "routine-group";
-    group.innerHTML = `<h3>${timeIcon(time)}<span>${escapeHTML(time)}</span></h3>`;
+    group.innerHTML = `<h3>${timeIcon(time)}<span>${escapeHTML(timeLabel(time))}</span></h3>`;
 
     slots.forEach((slot) => {
       const item = slot.supplement;
@@ -301,19 +604,19 @@ function renderRoutine() {
       row.innerHTML = `
         <div>
           <p class="routine-title">${escapeHTML(item.name)}</p>
-          <p class="routine-meta">${formatDose(item)} · reicht noch ${daysLeft(item)} Tage</p>
+          <p class="routine-meta">${formatDose(item)} · ${t("daysLeft", daysLeft(item))}</p>
         </div>
         <div class="item-actions">
-          <button class="check-button" data-check-id="${slot.checkId}" type="button" aria-label="${item.name} als eingenommen markieren">
+          <button class="check-button" data-check-id="${slot.checkId}" type="button" aria-label="${escapeHTML(t("markAsTaken", item.name))}">
             <span class="check-icon">${isDone ? "✓" : ""}</span>
-            <span>${isDone ? "Erledigt" : "Eingenommen"}</span>
+            <span>${isDone ? t("done") : t("taken")}</span>
           </button>
           <details class="item-menu">
-            <summary aria-label="${item.name} Aktionen">•••</summary>
+            <summary aria-label="${escapeHTML(t("itemActions", item.name))}">•••</summary>
             <div class="menu-popover">
-              <button data-edit-id="${item.id}" type="button">Bearbeiten</button>
-              <button data-pause-id="${item.id}" type="button">Pausieren</button>
-              <button class="danger-action" data-delete-id="${item.id}" type="button">Löschen</button>
+              <button data-edit-id="${item.id}" type="button">${t("edit")}</button>
+              <button data-pause-id="${item.id}" type="button">${t("pause")}</button>
+              <button class="danger-action" data-delete-id="${item.id}" type="button">${t("deleteAction")}</button>
             </div>
           </details>
         </div>
@@ -345,7 +648,7 @@ function renderStock() {
   if (!state.supplements.length) {
     elements.stockList.innerHTML = `
       <div class="empty-state">
-        <p>Vorrat erscheint hier, sobald du dein erstes Supplement anlegst.</p>
+        <p>${t("emptyStock")}</p>
       </div>
     `;
     return;
@@ -356,7 +659,7 @@ function renderStock() {
 
   if (lowItems.length) {
     elements.stockAlert.innerHTML = `
-      <strong>${lowItems.length} bald leer</strong>
+      <strong>${t("almostEmpty", lowItems.length)}</strong>
       <span>${lowItems.map((item) => escapeHTML(item.name)).join(", ")}</span>
     `;
   }
@@ -364,7 +667,7 @@ function renderStock() {
   sorted.forEach((item) => {
     const percent = stockPercent(item);
     const remainingDays = daysLeft(item);
-    const statusText = item.paused ? "Pausiert" : remainingDays <= 7 ? "Knapp" : "Stabil";
+    const statusText = item.paused ? t("statusPaused") : remainingDays <= 7 ? t("statusLow") : t("statusStable");
     const statusClass = item.paused ? "is-paused" : remainingDays <= 7 ? "is-low" : "is-stable";
     const row = document.createElement("article");
     row.className = `stock-item ${statusClass}`;
@@ -372,19 +675,19 @@ function renderStock() {
       <div class="stock-header">
         <div>
           <p class="stock-title">${escapeHTML(item.name)}</p>
-          <p class="stock-meta">${formatStock(item)} übrig · ${formatServing(item)} pro Einnahme</p>
+          <p class="stock-meta">${t("stockRemaining", formatStock(item), formatServing(item))}</p>
         </div>
         <div class="stock-actions">
           <span class="stock-status ${statusClass}">${statusText}</span>
-          <strong>${remainingDays} Tage</strong>
+          <strong>${t("daysUnit", remainingDays)}</strong>
         </div>
       </div>
       <div class="stock-track">
         <div class="stock-bar ${remainingDays <= 7 ? "is-low" : ""}" style="width: ${percent}%"></div>
       </div>
       <div class="stock-controls">
-        <button class="refill-button" data-refill-id="${item.id}" type="button">Auffüllen</button>
-        <button class="refill-button subtle" data-pause-id="${item.id}" type="button">${item.paused ? "Aktivieren" : "Pausieren"}</button>
+        <button class="refill-button" data-refill-id="${item.id}" type="button">${t("refill")}</button>
+        <button class="refill-button subtle" data-pause-id="${item.id}" type="button">${item.paused ? t("activate") : t("pause")}</button>
       </div>
     `;
     elements.stockList.append(row);
@@ -412,7 +715,7 @@ function renderHistory() {
     const day = document.createElement("article");
     day.className = `history-day ${isComplete ? "is-complete" : ""}`;
     day.innerHTML = `
-      <span>${new Intl.DateTimeFormat("de-DE", { weekday: "short" }).format(date)}</span>
+      <span>${new Intl.DateTimeFormat(dateLocale(), { weekday: "short" }).format(date)}</span>
       <strong>${completion}%</strong>
     `;
     elements.historyList.append(day);
@@ -427,13 +730,13 @@ function openSupplementForm(item = null) {
   elements.servingInput.value = "1";
 
   if (item) {
-    elements.formTitle.textContent = "Supplement bearbeiten";
-    elements.saveSupplementButton.textContent = "Änderungen speichern";
+    elements.formTitle.textContent = t("editSupplementTitle");
+    elements.saveSupplementButton.textContent = t("saveChanges");
     elements.editIdInput.value = item.id;
     fillForm(item);
   } else {
-    elements.formTitle.textContent = "Supplement hinzufügen";
-    elements.saveSupplementButton.textContent = "Speichern";
+    elements.formTitle.textContent = t("addSupplementTitle");
+    elements.saveSupplementButton.textContent = t("save");
     elements.editIdInput.value = "";
     const template = supplementTemplates[0];
     elements.templateInput.value = "";
@@ -464,7 +767,7 @@ function openRefillDialog(id) {
   closeTransientMenus();
   elements.refillIdInput.value = id;
   elements.refillAmountInput.value = "";
-  elements.refillDescription.textContent = `${supplement.name}: aktuell ${formatStock(supplement)} übrig.`;
+  elements.refillDescription.textContent = t("refillDescription", supplement.name, formatStock(supplement));
   elements.refillPanel.classList.add("is-open");
   elements.refillPanel.setAttribute("aria-hidden", "false");
   elements.refillAmountInput.focus();
@@ -482,14 +785,14 @@ function openBackupDialog(mode) {
 
   if (mode === "import") {
     elements.backupTextArea.value = "";
-    elements.backupHint.textContent = "Füge ein Capsl-Backup ein oder wähle eine JSON-Datei.";
-    elements.backupTextArea.placeholder = "Backup-Text hier einfügen...";
+    elements.backupHint.textContent = t("backupHintImport");
+    elements.backupTextArea.placeholder = t("backupTextPlaceholder");
     elements.backupTextArea.focus();
     return;
   }
 
   elements.backupTextArea.value = JSON.stringify(createBackupPayload(), null, 2);
-  elements.backupHint.textContent = "Kopiere dein Backup oder lade es als Datei herunter.";
+  elements.backupHint.textContent = t("backupHintExport");
   elements.backupTextArea.placeholder = "";
   elements.backupTextArea.select();
 }
@@ -544,7 +847,7 @@ function renderTemplateCards() {
     .map((template) => `
       <button class="template-card" type="button" data-template-name="${escapeHTML(template.name)}">
         <strong>${escapeHTML(template.name)}</strong>
-        <span>${formatNumber(template.doseAmount)} ${unitLabel(template.doseUnit, template.doseAmount)} · ${escapeHTML(template.time)}</span>
+        <span>${formatNumber(template.doseAmount)} ${unitLabel(template.doseUnit, template.doseAmount)} · ${escapeHTML(timeLabel(template.time))}</span>
       </button>
     `)
     .join("");
@@ -638,7 +941,7 @@ function deleteSupplement(id) {
 
 function showUndoToast(supplement, index, removedChecks) {
   pendingDelete = { supplement, index, removedChecks };
-  elements.undoToastMessage.textContent = `„${supplement.name}“ gelöscht`;
+  elements.undoToastMessage.textContent = t("deletedToast", supplement.name);
   elements.undoToast.hidden = false;
   pendingDeleteTimer = setTimeout(finalizePendingDelete, 6000);
 }
@@ -804,33 +1107,14 @@ function formatServing(item) {
 }
 
 function unitLabel(unit, amount) {
-  if (Number(amount) === 1) {
-    return unit;
-  }
-
-  const plurals = {
-    Kapsel: "Kapseln",
-    Tablette: "Tabletten",
-    Scoop: "Scoops",
-    Portion: "Portionen",
-  };
-
-  return plurals[unit] || unit;
+  const entry = (UNIT_LABELS[currentLang] && UNIT_LABELS[currentLang][unit]) || { singular: unit, plural: unit };
+  return Number(amount) === 1 ? entry.singular : entry.plural;
 }
 
 function stockUnitLabel(unit, amount) {
-  if (Number(amount) !== 1) {
-    return unit;
-  }
-
-  const singulars = {
-    Kapseln: "Kapsel",
-    Tabletten: "Tablette",
-    Scoops: "Scoop",
-    Portionen: "Portion",
-  };
-
-  return singulars[unit] || unit;
+  const doseUnit = STOCK_UNIT_TO_DOSE_UNIT[unit] || unit;
+  const entry = (UNIT_LABELS[currentLang] && UNIT_LABELS[currentLang][doseUnit]) || { singular: unit, plural: unit };
+  return Number(amount) === 1 ? entry.singular : entry.plural;
 }
 
 function createSupplement(source) {
@@ -917,9 +1201,9 @@ function downloadBackup() {
     link.download = `capsl-backup-${todayKey}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    elements.backupHint.textContent = "Backup-Datei wurde vorbereitet.";
+    elements.backupHint.textContent = t("backupFilePrepared");
   } catch (error) {
-    elements.backupHint.textContent = "Download fehlgeschlagen. Bitte prüfe den Backup-Text.";
+    elements.backupHint.textContent = t("backupDownloadFailed");
   }
 }
 
@@ -933,7 +1217,7 @@ async function copyBackupText() {
   if (navigator.clipboard && window.isSecureContext) {
     try {
       await navigator.clipboard.writeText(text);
-      elements.backupHint.textContent = "Backup-Text wurde kopiert.";
+      elements.backupHint.textContent = t("backupCopied");
       return;
     } catch (error) {
       // fall through to legacy copy
@@ -942,16 +1226,16 @@ async function copyBackupText() {
 
   elements.backupTextArea.select();
   document.execCommand("copy");
-  elements.backupHint.textContent = "Backup-Text wurde zum Kopieren markiert.";
+  elements.backupHint.textContent = t("backupCopiedFallback");
 }
 
 function importBackupText() {
   try {
     applyImportedPayload(JSON.parse(elements.backupTextArea.value));
-    elements.backupHint.textContent = "Backup wurde importiert.";
+    elements.backupHint.textContent = t("backupImported");
     closeBackupDialog();
   } catch (error) {
-    elements.backupHint.textContent = "Import fehlgeschlagen. Bitte prüfe den Backup-Text.";
+    elements.backupHint.textContent = t("backupImportFailed");
   }
 }
 
@@ -965,7 +1249,7 @@ async function importData(event) {
     applyImportedPayload(JSON.parse(await file.text()));
     closeBackupDialog();
   } catch (error) {
-    alert("Import fehlgeschlagen. Bitte wähle eine gültige Capsl-Backup-Datei.");
+    alert(t("fileImportFailed"));
   } finally {
     elements.importFileInput.value = "";
   }
