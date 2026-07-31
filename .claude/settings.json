@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Browser__resize_window",
+      "mcp__Claude_Browser__read_console_messages",
+      "mcp__Claude_Browser__read_page",
+      "mcp__Claude_Browser__find",
+      "mcp__Claude_Browser__get_page_text",
+      "Bash(curl -s http://localhost:8000/*)",
+      "mcp__Claude_Browser__preview_list"
+    ]
+  }
+}

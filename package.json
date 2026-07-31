@@ -1,0 +1,29 @@
+{
+  "name": "capsl",
+  "version": "1.0.0",
+  "description": "Capsl ist eine einfache, lokale Supplement-Tracker-App.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sync:web": "rm -rf www && mkdir -p www/icons && cp index.html app.js styles.css manifest.json sw.js impressum.html www/ && cp icons/*.png www/icons/",
+    "cap:sync": "npm run sync:web && npx cap sync"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lolbirn/Capslv2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Lolbirn/Capslv2/issues"
+  },
+  "homepage": "https://github.com/Lolbirn/Capslv2#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0"
+  }
+}
