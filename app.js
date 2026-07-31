@@ -445,7 +445,10 @@ elements.showTodayButton.addEventListener("click", () => {
 
 elements.resetDayButton.addEventListener("click", resetDay);
 elements.undoToastButton.addEventListener("click", undoDelete);
-elements.languageToggleButton.addEventListener("click", () => setLanguage(currentLang === "de" ? "en" : "de"));
+elements.languageToggleButton.addEventListener("click", () => {
+  setLanguage(currentLang === "de" ? "en" : "de");
+  elements.appMenu.open = false;
+});
 elements.exportDataButton.addEventListener("click", () => openBackupDialog("export"));
 elements.importDataButton.addEventListener("click", () => openBackupDialog("import"));
 elements.importFileInput.addEventListener("change", importData);
