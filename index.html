@@ -73,12 +73,20 @@
               <span><strong id="streakCount">0</strong> <span data-i18n="streakLabel">Tage Streak</span></span>
             </div>
           </section>
-          <details class="history-panel" aria-label="7-Tage-Historie" data-i18n-aria-label="historyLabel">
+          <details class="history-panel" aria-label="14-Wochen-Verlauf" data-i18n-aria-label="historyLabel">
             <summary class="mini-heading">
-              <span data-i18n="sevenDays">7 Tage</span>
+              <span data-i18n="historyRangeLabel">14 Wochen</span>
               <strong data-i18n="showHistory">Historie anzeigen</strong>
             </summary>
-            <div id="historyList" class="history-list"></div>
+            <div id="historyList" class="history-heatmap"></div>
+            <div class="heatmap-legend">
+              <span data-i18n="heatmapLess">Weniger</span>
+              <span class="legend-swatch level-0"></span>
+              <span class="legend-swatch level-1"></span>
+              <span class="legend-swatch level-2"></span>
+              <span class="legend-swatch level-3"></span>
+              <span data-i18n="heatmapMore">Mehr</span>
+            </div>
           </details>
           <div id="routineList" class="routine-list"></div>
         </section>

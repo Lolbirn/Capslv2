@@ -29,9 +29,12 @@ const TRANSLATIONS = {
     supplementsLabel: "Supplements",
     openLabel: "offen",
     streakLabel: "Tage Streak",
-    historyLabel: "7-Tage-Historie",
-    sevenDays: "7 Tage",
+    historyLabel: "14-Wochen-Verlauf",
+    historyRangeLabel: "14 Wochen",
     showHistory: "Historie anzeigen",
+    heatmapLess: "Weniger",
+    heatmapMore: "Mehr",
+    checkAllGroup: "Alle abhaken",
     stockEyebrow: "Vorrat",
     stockTitle: "Vorrat",
     critical: "kritisch",
@@ -124,9 +127,12 @@ const TRANSLATIONS = {
     supplementsLabel: "Supplements",
     openLabel: "open",
     streakLabel: "day streak",
-    historyLabel: "7-day history",
-    sevenDays: "7 days",
+    historyLabel: "14-week history",
+    historyRangeLabel: "14 weeks",
     showHistory: "Show history",
+    heatmapLess: "Less",
+    heatmapMore: "More",
+    checkAllGroup: "Check all",
     stockEyebrow: "Stock",
     stockTitle: "Stock",
     critical: "critical",
@@ -599,7 +605,14 @@ function renderRoutine() {
   groups.forEach(([time, slots]) => {
     const group = document.createElement("section");
     group.className = "routine-group";
-    group.innerHTML = `<h3>${timeIcon(time)}<span>${escapeHTML(timeLabel(time))}</span></h3>`;
+    const allDone = slots.every((slot) => checkedToday().includes(slot.checkId));
+    const showCheckAll = slots.length > 1 && !allDone;
+    group.innerHTML = `
+      <h3>
+        <span class="group-title">${timeIcon(time)}<span>${escapeHTML(timeLabel(time))}</span></span>
+        ${showCheckAll ? `<button type="button" class="check-all-button" data-check-all="${escapeHTML(time)}">${t("checkAllGroup")}</button>` : ""}
+      </h3>
+    `;
 
     slots.forEach((slot) => {
       const item = slot.supplement;
@@ -643,6 +656,9 @@ function renderRoutine() {
   });
   elements.routineList.querySelectorAll("[data-delete-id]").forEach((button) => {
     button.addEventListener("click", () => deleteSupplement(button.dataset.deleteId));
+  });
+  elements.routineList.querySelectorAll("[data-check-all]").forEach((button) => {
+    button.addEventListener("click", () => checkAllForTime(button.dataset.checkAll));
   });
 }
 
@@ -709,22 +725,42 @@ function renderStock() {
 function renderHistory() {
   elements.historyList.innerHTML = "";
   const total = activeSlots().length;
+  const weeksToShow = 14;
 
-  for (let index = 6; index >= 0; index -= 1) {
-    const date = new Date();
-    date.setDate(date.getDate() - index);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const mondayOffset = (today.getDay() + 6) % 7;
+  const gridStart = new Date(today);
+  gridStart.setDate(gridStart.getDate() - mondayOffset - (weeksToShow - 1) * 7);
+
+  for (let i = 0; i < weeksToShow * 7; i += 1) {
+    const date = new Date(gridStart);
+    date.setDate(gridStart.getDate() + i);
+    const isFuture = date > today;
     const key = toDateKey(date);
     const checks = state.checks[key] || [];
     const completion = total ? Math.round((checks.length / total) * 100) : 0;
-    const isComplete = total > 0 && completion >= 100;
-    const day = document.createElement("article");
-    day.className = `history-day ${isComplete ? "is-complete" : ""}`;
-    day.innerHTML = `
-      <span>${new Intl.DateTimeFormat(dateLocale(), { weekday: "short" }).format(date)}</span>
-      <strong>${completion}%</strong>
-    `;
-    elements.historyList.append(day);
+    const cell = document.createElement("span");
+    cell.className = `heatmap-cell level-${isFuture ? 0 : completionLevel(completion)}${isFuture ? " is-future" : ""}`;
+    if (!isFuture) {
+      const dateLabel = new Intl.DateTimeFormat(dateLocale(), { day: "2-digit", month: "short" }).format(date);
+      cell.title = `${dateLabel}: ${completion}%`;
+    }
+    elements.historyList.append(cell);
   }
+}
+
+function completionLevel(completion) {
+  if (completion >= 100) {
+    return 3;
+  }
+  if (completion >= 50) {
+    return 2;
+  }
+  if (completion > 0) {
+    return 1;
+  }
+  return 0;
 }
 
 function openSupplementForm(item = null) {
@@ -899,6 +935,24 @@ function toggleCheck(checkId) {
   } else {
     supplement.stock = Math.max(0, supplement.stock - supplement.serving);
   }
+
+  saveAll();
+  render();
+}
+
+function checkAllForTime(time) {
+  const checks = checkedToday();
+  const pending = activeSlots().filter((slot) => slot.time === time && !checks.includes(slot.checkId));
+
+  if (!pending.length) {
+    return;
+  }
+
+  pending.forEach((slot) => {
+    slot.supplement.stock = Math.max(0, slot.supplement.stock - slot.supplement.serving);
+  });
+
+  state.checks[todayKey] = [...new Set([...checks, ...pending.map((slot) => slot.checkId)])];
 
   saveAll();
   render();

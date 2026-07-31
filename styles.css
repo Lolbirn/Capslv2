@@ -794,39 +794,65 @@ select:focus {
   font-size: 0.95rem;
 }
 
-.history-list {
+.history-heatmap {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
+  grid-template-rows: repeat(7, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 3px;
   margin-top: 10px;
 }
 
-.history-day {
-  display: grid;
-  gap: 5px;
-  min-height: 58px;
-  padding: 8px 6px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(255, 253, 249, 0.95);
-  text-align: center;
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--line);
 }
 
-.history-day span {
+.heatmap-cell.level-1 {
+  background: var(--gold-soft);
+}
+
+.heatmap-cell.level-2 {
+  background: var(--gold);
+}
+
+.heatmap-cell.level-3 {
+  background: var(--sage);
+}
+
+.heatmap-cell.is-future {
+  opacity: 0.4;
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 8px;
   color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 850;
-  text-transform: uppercase;
+  font-size: 0.68rem;
+  font-weight: 700;
 }
 
-.history-day strong {
-  font-size: 0.9rem;
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--line);
 }
 
-.history-day.is-complete {
-  border-color: rgba(111, 125, 93, 0.35);
-  background: #eef4e9;
-  color: var(--sage);
+.legend-swatch.level-1 {
+  background: var(--gold-soft);
+}
+
+.legend-swatch.level-2 {
+  background: var(--gold);
+}
+
+.legend-swatch.level-3 {
+  background: var(--sage);
 }
 
 .routine-list,
@@ -844,7 +870,8 @@ select:focus {
 .routine-group h3 {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 8px;
   margin: 8px 0 0;
   color: var(--gold);
   font-size: 0.74rem;
@@ -854,6 +881,30 @@ select:focus {
 
 .routine-group h3 svg {
   flex-shrink: 0;
+}
+
+.group-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.check-all-button {
+  flex-shrink: 0;
+  padding: 3px 9px;
+  border: 1px solid rgba(197, 155, 90, 0.4);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gold);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.check-all-button:hover {
+  background: var(--gold-soft);
 }
 
 .routine-item,
@@ -1324,12 +1375,6 @@ select:focus {
 
   .template-cards {
     grid-template-columns: 1fr;
-  }
-
-  .history-list {
-    grid-template-columns: repeat(7, minmax(54px, 1fr));
-    overflow-x: auto;
-    padding-bottom: 2px;
   }
 
   .refill-options {
