@@ -335,7 +335,8 @@ function applyStaticTranslations() {
   });
 
   if (elements.languageToggleButton) {
-    elements.languageToggleButton.textContent = t("languageToggle");
+    const [flag, ...labelParts] = t("languageToggle").split(" ");
+    elements.languageToggleButton.innerHTML = `${flag} <span class="lang-label">${escapeHTML(labelParts.join(" "))}</span>`;
   }
 }
 
@@ -504,7 +505,6 @@ elements.resetDayButton.addEventListener("click", resetDay);
 elements.undoToastButton.addEventListener("click", undoDelete);
 elements.languageToggleButton.addEventListener("click", () => {
   setLanguage(currentLang === "de" ? "en" : "de");
-  elements.appMenu.open = false;
 });
 elements.themeToggleButton.addEventListener("click", () => setTheme(currentTheme === "dark" ? "light" : "dark"));
 elements.exportDataButton.addEventListener("click", () => openBackupDialog("export"));
