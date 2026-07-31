@@ -106,6 +106,7 @@ const TRANSLATIONS = {
     backupImportFailed: "Import fehlgeschlagen. Bitte prüfe den Backup-Text.",
     fileImportFailed: "Import fehlgeschlagen. Bitte wähle eine gültige Capsl-Backup-Datei.",
     languageToggle: "🇬🇧 English",
+    legalLink: "Impressum & Datenschutz",
   },
   en: {
     appMenuLabel: "App menu",
@@ -200,6 +201,7 @@ const TRANSLATIONS = {
     backupImportFailed: "Import failed. Please check the backup text.",
     fileImportFailed: "Import failed. Please choose a valid Capsl backup file.",
     languageToggle: "🇩🇪 Deutsch",
+    legalLink: "Legal notice & Privacy",
   },
 };
 
