@@ -7,8 +7,20 @@ if ("serviceWorker" in navigator) {
 const STORAGE_KEY = "capsl-supplements-v1";
 const CHECKS_KEY = "capsl-checks-v1";
 const LANG_KEY = "capsl-lang-v1";
+const THEME_KEY = "capsl-theme-v1";
 const OLD_STORAGE_KEYS = ["supproutine-supplements-v2", "supproutine-supplements-v1", "coredose-supplements-v1"];
 const OLD_CHECK_KEYS = ["supproutine-checks-v2", "supproutine-checks-v1", "coredose-checks-v1"];
+
+const storedTheme = localStorage.getItem(THEME_KEY);
+let currentTheme = storedTheme === "dark" || storedTheme === "light"
+  ? storedTheme
+  : window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+
+if (currentTheme === "dark") {
+  document.documentElement.setAttribute("data-theme", "dark");
+}
 
 let currentLang = localStorage.getItem(LANG_KEY) === "en" ? "en" : "de";
 
@@ -35,6 +47,8 @@ const TRANSLATIONS = {
     heatmapLess: "Weniger",
     heatmapMore: "Mehr",
     checkAllGroup: "Alle abhaken",
+    switchToDark: "Dunkelmodus aktivieren",
+    switchToLight: "Hellmodus aktivieren",
     stockEyebrow: "Vorrat",
     stockTitle: "Vorrat",
     critical: "kritisch",
@@ -133,6 +147,8 @@ const TRANSLATIONS = {
     heatmapLess: "Less",
     heatmapMore: "More",
     checkAllGroup: "Check all",
+    switchToDark: "Switch to dark mode",
+    switchToLight: "Switch to light mode",
     stockEyebrow: "Stock",
     stockTitle: "Stock",
     critical: "critical",
@@ -280,6 +296,7 @@ function setLanguage(lang) {
   currentLang = lang === "en" ? "en" : "de";
   localStorage.setItem(LANG_KEY, currentLang);
   applyStaticTranslations();
+  applyTheme();
   renderTemplateCards();
   render();
 }
@@ -315,6 +332,33 @@ function applyStaticTranslations() {
   if (elements.languageToggleButton) {
     elements.languageToggleButton.textContent = t("languageToggle");
   }
+}
+
+const MOON_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>';
+const SUN_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+
+function applyTheme() {
+  if (currentTheme === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+
+  if (elements.themeToggleButton) {
+    elements.themeToggleButton.innerHTML = currentTheme === "dark" ? SUN_ICON : MOON_ICON;
+    elements.themeToggleButton.setAttribute("aria-label", t(currentTheme === "dark" ? "switchToLight" : "switchToDark"));
+  }
+
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute("content", currentTheme === "dark" ? "#14100c" : "#211a16");
+  }
+}
+
+function setTheme(theme) {
+  currentTheme = theme === "dark" ? "dark" : "light";
+  localStorage.setItem(THEME_KEY, currentTheme);
+  applyTheme();
 }
 
 const todayKey = toDateKey(new Date());
@@ -400,8 +444,10 @@ const elements = {
   undoToastMessage: document.querySelector("#undoToastMessage"),
   undoToastButton: document.querySelector("#undoToastButton"),
   languageToggleButton: document.querySelector("#languageToggleButton"),
+  themeToggleButton: document.querySelector("#themeToggleButton"),
 };
 
+applyTheme();
 renderTemplateOptions();
 renderTemplateCards();
 
@@ -455,6 +501,7 @@ elements.languageToggleButton.addEventListener("click", () => {
   setLanguage(currentLang === "de" ? "en" : "de");
   elements.appMenu.open = false;
 });
+elements.themeToggleButton.addEventListener("click", () => setTheme(currentTheme === "dark" ? "light" : "dark"));
 elements.exportDataButton.addEventListener("click", () => openBackupDialog("export"));
 elements.importDataButton.addEventListener("click", () => openBackupDialog("import"));
 elements.importFileInput.addEventListener("change", importData);
