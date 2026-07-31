@@ -22,7 +22,12 @@ if (currentTheme === "dark") {
   document.documentElement.setAttribute("data-theme", "dark");
 }
 
-let currentLang = localStorage.getItem(LANG_KEY) === "en" ? "en" : "de";
+const storedLang = localStorage.getItem(LANG_KEY);
+let currentLang = storedLang === "en" || storedLang === "de"
+  ? storedLang
+  : (navigator.language || "").toLowerCase().startsWith("de")
+    ? "de"
+    : "en";
 
 const TRANSLATIONS = {
   de: {
