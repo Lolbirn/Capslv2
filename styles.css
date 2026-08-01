@@ -123,9 +123,8 @@ button {
 .form-panel {
   border: 1px solid rgba(var(--line-rgb), 0.85);
   border-radius: 8px;
-  background: rgba(var(--surface-rgb), 0.9);
+  background: var(--surface);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
 }
 
 .hero {
@@ -389,7 +388,7 @@ h2 {
 
 .primary-button {
   padding: 0 18px;
-  background: linear-gradient(180deg, var(--charcoal-soft), var(--charcoal));
+  background: var(--charcoal);
   color: white;
   box-shadow: 0 10px 22px rgba(var(--shadow-rgb), 0.18);
 }
@@ -622,7 +621,7 @@ h2 {
   min-height: 40px;
   padding: 0 14px;
   border: 1px solid rgba(var(--line-rgb), 0.95);
-  border-radius: 999px;
+  border-radius: 8px;
   background: rgba(var(--surface-rgb), 0.96);
   color: var(--ink);
   font-weight: 800;
@@ -880,7 +879,7 @@ select:focus {
   gap: 5px;
   min-height: 32px;
   padding: 0 11px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: rgba(var(--surface-rgb), 0.9);
   border: 1px solid rgba(var(--line-rgb), 0.95);
   box-shadow: 0 1px 0 rgba(var(--card-highlight-rgb), 0.72);
@@ -1051,7 +1050,7 @@ select:focus {
   flex-shrink: 0;
   padding: 3px 9px;
   border: 1px solid rgba(var(--gold-rgb), 0.4);
-  border-radius: 999px;
+  border-radius: 8px;
   background: transparent;
   color: var(--gold);
   font-size: 0.66rem;
@@ -1101,7 +1100,7 @@ select:focus {
   min-width: 112px;
   min-height: 36px;
   padding: 0 12px;
-  background: linear-gradient(180deg, var(--charcoal-soft), var(--charcoal));
+  background: var(--charcoal);
   color: white;
   font-size: 0.9rem;
   box-shadow: 0 8px 16px rgba(var(--shadow-rgb), 0.12);
@@ -1121,7 +1120,7 @@ select:focus {
 
 
 .routine-item.is-done .check-button {
-  background: linear-gradient(180deg, var(--sage-soft), var(--sage));
+  background: var(--sage);
   color: white;
   box-shadow: 0 8px 16px rgba(var(--sage-rgb), 0.14);
 }
@@ -1242,7 +1241,7 @@ select:focus {
   align-items: center;
   min-height: 22px;
   padding: 0 8px;
-  border-radius: 999px;
+  border-radius: 8px;
   border: 1px solid rgba(var(--line-strong-rgb), 0.78);
   background: rgba(var(--surface-rgb), 0.9);
   color: var(--muted);
@@ -1276,7 +1275,7 @@ select:focus {
 .refill-button {
   min-height: 32px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 8px;
   border: 1px solid rgba(var(--line-strong-rgb), 0.75);
   background: rgba(var(--gold-soft-rgb), 0.9);
   color: var(--ink);
@@ -1388,7 +1387,7 @@ select:focus {
   max-width: calc(100% - 32px);
   padding: 13px 16px 13px 18px;
   border-radius: 8px;
-  background: linear-gradient(180deg, var(--charcoal-soft), var(--charcoal));
+  background: var(--charcoal);
   color: white;
   font-weight: 800;
   font-size: 0.9rem;
