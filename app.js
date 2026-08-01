@@ -556,11 +556,11 @@ elements.supplementForm.addEventListener("submit", (event) => {
 
   const formData = {
     name: elements.templateInput.value.trim(),
-    doseAmount: toNumber(elements.doseAmountInput.value),
+    doseAmount: Math.max(0, toNumber(elements.doseAmountInput.value)),
     doseUnit: elements.doseUnitInput.value,
     times: getSelectedTimes(),
-    stock: toNumber(elements.stockInput.value),
-    initialStock: toNumber(elements.stockInput.value),
+    stock: Math.max(0, toNumber(elements.stockInput.value)),
+    initialStock: Math.max(0, toNumber(elements.stockInput.value)),
     stockUnit: elements.stockUnitInput.value,
     serving: Math.max(0.1, toNumber(elements.servingInput.value)),
   };
@@ -1404,11 +1404,11 @@ function createSupplement(source) {
   return {
     id: source.id || crypto.randomUUID(),
     name: source.name,
-    doseAmount: toNumber(source.doseAmount),
+    doseAmount: Math.max(0, toNumber(source.doseAmount)),
     doseUnit: source.doseUnit || "Kapsel",
     times: normalizeTimes(source.times || source.time),
-    stock: toNumber(source.stock),
-    initialStock: toNumber(source.initialStock ?? source.stock),
+    stock: Math.max(0, toNumber(source.stock)),
+    initialStock: Math.max(0, toNumber(source.initialStock ?? source.stock)),
     stockUnit: source.stockUnit || "Kapseln",
     serving: Math.max(0.1, toNumber(source.serving || 1)),
     paused: Boolean(source.paused),
