@@ -491,6 +491,26 @@ elements.closeFormButton.addEventListener("click", closeSupplementForm);
 elements.formPanel.querySelector("[data-close-form]").addEventListener("click", closeSupplementForm);
 elements.appMenu.querySelector("summary").addEventListener("click", () => closeItemMenus());
 elements.stockDetails.querySelector("summary").addEventListener("click", () => closeTransientMenus());
+document.addEventListener(
+  "toggle",
+  (event) => {
+    const target = event.target;
+    if (!target.open) return;
+    if (target.matches(".item-menu")) {
+      document.querySelectorAll(".item-menu[open]").forEach((menu) => {
+        if (menu !== target) menu.open = false;
+      });
+      elements.appMenu.open = false;
+    } else if (target === elements.appMenu) {
+      closeItemMenus();
+    }
+  },
+  true
+);
+document.addEventListener("click", (event) => {
+  if (event.target.closest(".item-menu, .app-menu")) return;
+  closeTransientMenus();
+});
 elements.closeRefillButton.addEventListener("click", closeRefillDialog);
 elements.refillPanel.querySelector("[data-close-refill]").addEventListener("click", closeRefillDialog);
 elements.closeBackupButton.addEventListener("click", closeBackupDialog);
