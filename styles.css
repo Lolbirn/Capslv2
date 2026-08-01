@@ -789,6 +789,12 @@ select:focus {
   min-height: 420px;
 }
 
+.daily-summary[hidden],
+.history-panel[hidden],
+.stock-panel[hidden] {
+  display: none;
+}
+
 .daily-summary {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) auto;

@@ -645,6 +645,14 @@ function render() {
 }
 
 function renderStats() {
+  const hasSupplements = state.supplements.length > 0;
+  document.querySelector(".daily-summary").hidden = !hasSupplements;
+  document.querySelector(".history-panel").hidden = !hasSupplements;
+  elements.stockDetails.hidden = !hasSupplements;
+  if (!hasSupplements) {
+    return;
+  }
+
   const activeSupplements = activeItems();
   const slots = activeSlots();
   const total = slots.length;
