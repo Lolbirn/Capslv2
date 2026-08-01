@@ -669,6 +669,34 @@ select:focus {
   margin-top: 18px;
 }
 
+.reminders-warning {
+  color: var(--danger);
+}
+
+.reminders-list {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.reminder-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reminder-row input[type="time"] {
+  flex: 1;
+}
+
+.reminder-row .icon-button {
+  flex-shrink: 0;
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+}
+
 .backup-box {
   display: grid;
   gap: 12px;

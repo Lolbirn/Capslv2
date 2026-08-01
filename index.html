@@ -35,6 +35,7 @@
                 <button id="exportDataButton" type="button" data-i18n="exportData">Daten exportieren</button>
                 <button id="importDataButton" type="button" data-i18n="importData">Daten importieren</button>
                 <button id="resetDayButton" type="button" data-i18n="resetDay">Tag zurücksetzen</button>
+                <button id="remindersButton" type="button" data-i18n="reminders" hidden>Erinnerungen</button>
               </div>
             </details>
           </div>
@@ -251,6 +252,23 @@
             <button id="importBackupTextButton" class="secondary-button" type="button" data-i18n="importText">Text importieren</button>
           </div>
         </div>
+      </section>
+    </div>
+
+    <div id="remindersPanel" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" data-close-reminders></div>
+      <section class="modal-panel compact-modal" role="dialog" aria-modal="true" aria-labelledby="remindersTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow" data-i18n="remindersEyebrow">Erinnerungen</p>
+            <h2 id="remindersTitle" data-i18n="remindersTitle">Erinnerungen</h2>
+          </div>
+          <button id="closeRemindersButton" class="ghost-button icon-button" type="button" aria-label="Schließen" data-i18n-aria-label="close">×</button>
+        </div>
+        <p class="refill-description" data-i18n="remindersHint">Bekomme eine Benachrichtigung, auch wenn Capsl geschlossen ist.</p>
+        <p id="remindersPermissionHint" class="refill-description reminders-warning" hidden data-i18n="remindersPermissionDenied">Benachrichtigungen sind deaktiviert. Bitte erlaube sie in den Geräteeinstellungen.</p>
+        <div id="remindersList" class="reminders-list"></div>
+        <button id="addReminderButton" class="secondary-button wide-field" type="button" data-i18n="addReminder">+ Erinnerung hinzufügen</button>
       </section>
     </div>
 

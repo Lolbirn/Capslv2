@@ -8,6 +8,9 @@ const STORAGE_KEY = "capsl-supplements-v1";
 const CHECKS_KEY = "capsl-checks-v1";
 const LANG_KEY = "capsl-lang-v1";
 const THEME_KEY = "capsl-theme-v1";
+const REMINDERS_KEY = "capsl-reminders-v1";
+const REMINDER_ID_BASE = 1000;
+const REMINDER_TIME_PRESETS = ["08:00", "13:00", "20:00"];
 const OLD_STORAGE_KEYS = ["supproutine-supplements-v2", "supproutine-supplements-v1", "coredose-supplements-v1"];
 const OLD_CHECK_KEYS = ["supproutine-checks-v2", "supproutine-checks-v1", "coredose-checks-v1"];
 
@@ -54,6 +57,16 @@ const TRANSLATIONS = {
     checkAllGroup: "Alle abhaken",
     switchToDark: "Dunkelmodus aktivieren",
     switchToLight: "Hellmodus aktivieren",
+    reminders: "Erinnerungen",
+    remindersEyebrow: "Erinnerungen",
+    remindersTitle: "Erinnerungen",
+    remindersHint: "Bekomme eine Benachrichtigung, auch wenn Capsl geschlossen ist.",
+    remindersPermissionDenied: "Benachrichtigungen sind deaktiviert. Bitte erlaube sie in den Geräteeinstellungen.",
+    addReminder: "+ Erinnerung hinzufügen",
+    deleteReminder: "Erinnerung löschen",
+    reminderMorning: "Guten Morgen! Zeit für deinen Supplement-Stack 💊",
+    reminderMidday: "Nicht vergessen: dein Mittags-Supplement wartet 💊",
+    reminderEvening: "Zeit für deine Abend-Routine 💊",
     stockEyebrow: "Vorrat",
     stockTitle: "Vorrat",
     critical: "kritisch",
@@ -154,6 +167,16 @@ const TRANSLATIONS = {
     checkAllGroup: "Check all",
     switchToDark: "Switch to dark mode",
     switchToLight: "Switch to light mode",
+    reminders: "Reminders",
+    remindersEyebrow: "Reminders",
+    remindersTitle: "Reminders",
+    remindersHint: "Get notified even when Capsl is closed.",
+    remindersPermissionDenied: "Notifications are disabled. Please allow them in your device settings.",
+    addReminder: "+ Add reminder",
+    deleteReminder: "Delete reminder",
+    reminderMorning: "Good morning! Time for your supplement stack 💊",
+    reminderMidday: "Don't forget: your midday supplement is waiting 💊",
+    reminderEvening: "Time for your evening routine 💊",
     stockEyebrow: "Stock",
     stockTitle: "Stock",
     critical: "critical",
@@ -433,6 +456,12 @@ const elements = {
   copyBackupButton: document.querySelector("#copyBackupButton"),
   chooseImportFileButton: document.querySelector("#chooseImportFileButton"),
   importBackupTextButton: document.querySelector("#importBackupTextButton"),
+  remindersButton: document.querySelector("#remindersButton"),
+  remindersPanel: document.querySelector("#remindersPanel"),
+  closeRemindersButton: document.querySelector("#closeRemindersButton"),
+  remindersList: document.querySelector("#remindersList"),
+  remindersPermissionHint: document.querySelector("#remindersPermissionHint"),
+  addReminderButton: document.querySelector("#addReminderButton"),
   historyList: document.querySelector("#historyList"),
   stockDetails: document.querySelector("#stockDetails"),
   stockAlert: document.querySelector("#stockAlert"),
@@ -466,6 +495,10 @@ elements.closeRefillButton.addEventListener("click", closeRefillDialog);
 elements.refillPanel.querySelector("[data-close-refill]").addEventListener("click", closeRefillDialog);
 elements.closeBackupButton.addEventListener("click", closeBackupDialog);
 elements.backupPanel.querySelector("[data-close-backup]").addEventListener("click", closeBackupDialog);
+elements.closeRemindersButton.addEventListener("click", closeRemindersDialog);
+elements.remindersPanel.querySelector("[data-close-reminders]").addEventListener("click", closeRemindersDialog);
+elements.remindersButton.addEventListener("click", () => openRemindersDialog());
+elements.addReminderButton.addEventListener("click", () => addReminder());
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && elements.formPanel.classList.contains("is-open")) {
     closeSupplementForm();
@@ -475,6 +508,9 @@ document.addEventListener("keydown", (event) => {
   }
   if (event.key === "Escape" && elements.backupPanel.classList.contains("is-open")) {
     closeBackupDialog();
+  }
+  if (event.key === "Escape" && elements.remindersPanel.classList.contains("is-open")) {
+    closeRemindersDialog();
   }
 });
 
@@ -568,6 +604,11 @@ elements.refillForm.addEventListener("submit", (event) => {
 
 saveAll();
 render();
+
+if (isNativePlatform()) {
+  elements.remindersButton.hidden = false;
+  rescheduleReminders(loadReminders());
+}
 
 function render() {
   elements.todayLabel.textContent = new Intl.DateTimeFormat(dateLocale(), {
@@ -893,6 +934,137 @@ function openBackupDialog(mode) {
 function closeBackupDialog() {
   elements.backupPanel.classList.remove("is-open");
   elements.backupPanel.setAttribute("aria-hidden", "true");
+}
+
+function isNativePlatform() {
+  return Boolean(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+}
+
+function getLocalNotifications() {
+  return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications;
+}
+
+function loadReminders() {
+  return loadJSON(REMINDERS_KEY, ["09:00"]);
+}
+
+function saveReminders(reminders) {
+  localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
+  rescheduleReminders(reminders);
+}
+
+function reminderMessageForTime(hhmm) {
+  const hour = Number.parseInt(hhmm.split(":")[0], 10);
+  if (hour < 11) {
+    return t("reminderMorning");
+  }
+  if (hour < 17) {
+    return t("reminderMidday");
+  }
+  return t("reminderEvening");
+}
+
+async function rescheduleReminders(reminders) {
+  const LocalNotifications = getLocalNotifications();
+  if (!LocalNotifications) {
+    return;
+  }
+
+  const pending = await LocalNotifications.getPending();
+  const ourIds = pending.notifications
+    .map((notification) => notification.id)
+    .filter((id) => id >= REMINDER_ID_BASE && id < REMINDER_ID_BASE + 1000);
+  if (ourIds.length) {
+    await LocalNotifications.cancel({ notifications: ourIds.map((id) => ({ id })) });
+  }
+
+  if (!reminders.length) {
+    return;
+  }
+
+  await LocalNotifications.schedule({
+    notifications: reminders.map((time, index) => {
+      const [hour, minute] = time.split(":").map((part) => Number.parseInt(part, 10));
+      return {
+        id: REMINDER_ID_BASE + index,
+        title: "Capsl",
+        body: reminderMessageForTime(time),
+        schedule: { on: { hour, minute }, allowWhileIdle: true },
+      };
+    }),
+  });
+}
+
+async function ensureNotificationPermission() {
+  const LocalNotifications = getLocalNotifications();
+  if (!LocalNotifications) {
+    return false;
+  }
+
+  const current = await LocalNotifications.checkPermissions();
+  if (current.display === "granted") {
+    elements.remindersPermissionHint.hidden = true;
+    return true;
+  }
+
+  const requested = await LocalNotifications.requestPermissions();
+  const granted = requested.display === "granted";
+  elements.remindersPermissionHint.hidden = granted;
+  return granted;
+}
+
+function renderReminders() {
+  const reminders = loadReminders();
+  elements.remindersList.innerHTML = "";
+
+  reminders.forEach((time, index) => {
+    const row = document.createElement("div");
+    row.className = "reminder-row";
+    row.innerHTML = `
+      <input type="time" value="${time}" data-reminder-index="${index}">
+      <button type="button" class="ghost-button icon-button" data-remove-reminder="${index}" aria-label="${escapeHTML(t("deleteReminder"))}">×</button>
+    `;
+    elements.remindersList.append(row);
+  });
+
+  elements.remindersList.querySelectorAll("[data-reminder-index]").forEach((input) => {
+    input.addEventListener("change", () => {
+      const list = loadReminders();
+      list[Number(input.dataset.reminderIndex)] = input.value;
+      saveReminders(list);
+    });
+  });
+
+  elements.remindersList.querySelectorAll("[data-remove-reminder]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const list = loadReminders();
+      list.splice(Number(button.dataset.removeReminder), 1);
+      saveReminders(list);
+      renderReminders();
+    });
+  });
+}
+
+async function addReminder() {
+  const list = loadReminders();
+  const nextPreset = REMINDER_TIME_PRESETS.find((preset) => !list.includes(preset));
+  list.push(nextPreset || "09:00");
+  saveReminders(list);
+  renderReminders();
+  await ensureNotificationPermission();
+}
+
+async function openRemindersDialog() {
+  closeTransientMenus();
+  elements.remindersPanel.classList.add("is-open");
+  elements.remindersPanel.setAttribute("aria-hidden", "false");
+  renderReminders();
+  await ensureNotificationPermission();
+}
+
+function closeRemindersDialog() {
+  elements.remindersPanel.classList.remove("is-open");
+  elements.remindersPanel.setAttribute("aria-hidden", "true");
 }
 
 function closeTransientMenus() {
