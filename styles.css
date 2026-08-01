@@ -751,6 +751,12 @@ select:focus {
   padding: 15px;
 }
 
+.hero:has(.app-menu[open]),
+.panel:has(.app-menu[open]),
+.panel:has(.item-menu[open]) {
+  z-index: 5;
+}
+
 .routine-panel {
   min-height: 420px;
 }
