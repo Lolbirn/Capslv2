@@ -1113,9 +1113,6 @@ select:focus {
   font-weight: 950;
 }
 
-.check-icon:empty {
-  display: none;
-}
 
 .routine-item.is-done .check-button {
   background: linear-gradient(180deg, var(--sage-soft), var(--sage));
@@ -1283,8 +1280,10 @@ select:focus {
 }
 
 .refill-button.subtle {
-  background: rgba(var(--surface-rgb), 0.7);
+  border-color: transparent;
+  background: transparent;
   color: var(--muted);
+  font-weight: 800;
 }
 
 .stock-track {
@@ -1586,7 +1585,7 @@ select:focus {
     justify-content: stretch;
   }
 
-  .stock-controls .refill-button {
+  .stock-controls .refill-button:not(.subtle) {
     flex: 1;
   }
 }
