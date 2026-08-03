@@ -845,7 +845,6 @@ function renderStock() {
 
 function renderHistory() {
   elements.historyList.innerHTML = "";
-  const total = activeSlots().length;
   const weeksToShow = 14;
 
   const today = new Date();
@@ -860,6 +859,7 @@ function renderHistory() {
     const isFuture = date > today;
     const key = toDateKey(date);
     const checks = state.checks[key] || [];
+    const total = activeSlots(key).length;
     const completion = total ? Math.round((checks.length / total) * 100) : 0;
     const cell = document.createElement("span");
     cell.className = `heatmap-cell level-${isFuture ? 0 : completionLevel(completion)}${isFuture ? " is-future" : ""}`;
@@ -1326,10 +1326,12 @@ function applyRefill(value, mode) {
   render();
 }
 
-function activeSlots() {
-  return activeItems().flatMap((item) =>
-    (item.times || []).map((time) => ({ supplement: item, time, checkId: `${item.id}::${time}` }))
-  );
+function activeSlots(dateKey = todayKey) {
+  return activeItems()
+    .filter((item) => (item.createdAt || "1970-01-01") <= dateKey)
+    .flatMap((item) =>
+      (item.times || []).map((time) => ({ supplement: item, time, checkId: `${item.id}::${time}` }))
+    );
 }
 
 function groupSlotsByTime(slots) {
@@ -1383,7 +1385,7 @@ function calculateStreak() {
 
 function isDayComplete(key) {
   const checks = state.checks[key] || [];
-  const slots = activeSlots();
+  const slots = activeSlots(key);
   return slots.length > 0 && slots.every((slot) => checks.includes(slot.checkId));
 }
 
@@ -1440,6 +1442,10 @@ function createSupplement(source) {
     stockUnit: source.stockUnit || "Kapseln",
     serving: Math.max(0.1, toNumber(source.serving || 1)),
     paused: Boolean(source.paused),
+    // Items already carrying an id are existing entries loaded from storage —
+    // backdate them so streak/history math doesn't change for current users.
+    // Items without an id are genuinely new, so they start counting today.
+    createdAt: source.createdAt || (source.id ? "1970-01-01" : todayKey),
   };
 }
 
@@ -1609,7 +1615,7 @@ function stockUnitFromDose(unit) {
     mg: "mg",
   };
 
-  return map[unit] || "Einheiten";
+  return map[unit] || (currentLang === "en" ? "units" : "Einheiten");
 }
 
 function saveAll() {
@@ -1650,7 +1656,7 @@ function toNumber(value) {
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat("de-DE", {
+  return new Intl.NumberFormat(dateLocale(), {
     maximumFractionDigits: 2,
   }).format(value || 0);
 }
