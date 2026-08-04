@@ -54,6 +54,7 @@ const TRANSLATIONS = {
     showHistory: "Historie anzeigen",
     heatmapLess: "Weniger",
     heatmapMore: "Mehr",
+    bestStreakLabel: (days) => `🔥 Beste Streak: ${days} ${days === 1 ? "Tag" : "Tage"}`,
     checkAllGroup: "Alle abhaken",
     switchToDark: "Dunkelmodus aktivieren",
     switchToLight: "Hellmodus aktivieren",
@@ -164,6 +165,7 @@ const TRANSLATIONS = {
     showHistory: "Show history",
     heatmapLess: "Less",
     heatmapMore: "More",
+    bestStreakLabel: (days) => `🔥 Best streak: ${days} ${days === 1 ? "day" : "days"}`,
     checkAllGroup: "Check all",
     switchToDark: "Switch to dark mode",
     switchToLight: "Switch to light mode",
@@ -463,6 +465,7 @@ const elements = {
   remindersPermissionHint: document.querySelector("#remindersPermissionHint"),
   addReminderButton: document.querySelector("#addReminderButton"),
   historyList: document.querySelector("#historyList"),
+  bestStreakLabel: document.querySelector("#bestStreakLabel"),
   stockDetails: document.querySelector("#stockDetails"),
   stockAlert: document.querySelector("#stockAlert"),
   routineList: document.querySelector("#routineList"),
@@ -845,6 +848,8 @@ function renderStock() {
 
 function renderHistory() {
   elements.historyList.innerHTML = "";
+  const bestStreak = calculateBestStreak();
+  elements.bestStreakLabel.textContent = bestStreak > 0 ? t("bestStreakLabel", bestStreak) : "";
   const weeksToShow = 14;
 
   const today = new Date();
@@ -1381,6 +1386,32 @@ function calculateStreak() {
   }
 
   return streak;
+}
+
+function calculateBestStreak() {
+  const checkDates = Object.keys(state.checks).sort();
+  if (!checkDates.length) {
+    return 0;
+  }
+
+  const cursor = new Date(checkDates[0]);
+  const end = new Date();
+  cursor.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
+
+  let best = 0;
+  let current = 0;
+  while (cursor <= end) {
+    if (isDayComplete(toDateKey(cursor))) {
+      current += 1;
+      best = Math.max(best, current);
+    } else {
+      current = 0;
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return best;
 }
 
 function isDayComplete(key) {
