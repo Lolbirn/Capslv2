@@ -848,8 +848,7 @@ function renderStock() {
 
 function renderHistory() {
   elements.historyList.innerHTML = "";
-  const bestStreak = calculateBestStreak();
-  elements.bestStreakLabel.textContent = bestStreak > 0 ? t("bestStreakLabel", bestStreak) : "";
+  updateBestStreakLabel();
   const weeksToShow = 14;
 
   const today = new Date();
@@ -863,17 +862,38 @@ function renderHistory() {
     date.setDate(gridStart.getDate() + i);
     const isFuture = date > today;
     const key = toDateKey(date);
-    const checks = state.checks[key] || [];
-    const total = activeSlots(key).length;
-    const completion = total ? Math.round((checks.length / total) * 100) : 0;
     const cell = document.createElement("span");
-    cell.className = `heatmap-cell level-${isFuture ? 0 : completionLevel(completion)}${isFuture ? " is-future" : ""}`;
-    if (!isFuture) {
-      const dateLabel = new Intl.DateTimeFormat(dateLocale(), { day: "2-digit", month: "short" }).format(date);
-      cell.title = `${dateLabel}: ${completion}%`;
-    }
+    cell.dataset.dateKey = key;
     elements.historyList.append(cell);
+    if (!isFuture) {
+      applyHeatmapCellState(cell, key, date);
+    } else {
+      cell.className = "heatmap-cell level-0 is-future";
+    }
   }
+}
+
+function applyHeatmapCellState(cell, key, date) {
+  const checks = state.checks[key] || [];
+  const total = activeSlots(key).length;
+  const completion = total ? Math.round((checks.length / total) * 100) : 0;
+  cell.className = `heatmap-cell level-${completionLevel(completion)}`;
+  const dateLabel = new Intl.DateTimeFormat(dateLocale(), { day: "2-digit", month: "short" }).format(date);
+  cell.title = `${dateLabel}: ${completion}%`;
+}
+
+function updateBestStreakLabel() {
+  const bestStreak = calculateBestStreak();
+  elements.bestStreakLabel.textContent = bestStreak > 0 ? t("bestStreakLabel", bestStreak) : "";
+}
+
+function renderTodayHeatmapCell() {
+  const cell = elements.historyList.querySelector(`[data-date-key="${todayKey}"]`);
+  if (!cell) {
+    return;
+  }
+  applyHeatmapCellState(cell, todayKey, new Date());
+  updateBestStreakLabel();
 }
 
 function completionLevel(completion) {
@@ -1194,7 +1214,14 @@ function toggleCheck(checkId) {
   }
 
   saveAll();
-  render();
+  refreshAfterCheckToggle();
+}
+
+function refreshAfterCheckToggle() {
+  renderRoutine();
+  renderStock();
+  renderStats();
+  renderTodayHeatmapCell();
 }
 
 function checkAllForTime(time) {
@@ -1212,7 +1239,7 @@ function checkAllForTime(time) {
   state.checks[todayKey] = [...new Set([...checks, ...pending.map((slot) => slot.checkId)])];
 
   saveAll();
-  render();
+  refreshAfterCheckToggle();
 }
 
 function resetDay() {

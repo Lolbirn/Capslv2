@@ -450,7 +450,7 @@ h2 {
   position: absolute;
   inset: 0;
   background: rgba(var(--shadow-rgb), 0.48);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(8px);
 }
 
 .modal-panel {
@@ -475,7 +475,7 @@ h2 {
   padding: 18px 22px 14px;
   border-bottom: 1px solid rgba(var(--line-rgb), 0.72);
   background: rgba(var(--surface-rgb), 0.92);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(9px);
 }
 
 .compact-modal {
