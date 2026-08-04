@@ -815,15 +815,9 @@ select:focus {
 .completion-check {
   display: grid;
   place-items: center;
-  width: 32px;
-  min-width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: var(--sage);
-  color: white;
-  font-size: 1rem;
+  color: var(--sage);
+  font-size: 1.4rem;
   font-weight: 950;
-  box-shadow: 0 8px 18px rgba(var(--sage-rgb), 0.2);
 }
 
 .completion-state strong {
@@ -837,10 +831,6 @@ select:focus {
   font-weight: 760;
 }
 
-.completion-state .completion-check {
-  color: white;
-  font-size: 1rem;
-}
 
 .summary-progress span,
 .summary-metrics > span {
@@ -978,36 +968,6 @@ select:focus {
 
 .heatmap-cell.is-future {
   opacity: 0.4;
-}
-
-.heatmap-legend {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.legend-swatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  background: var(--line);
-}
-
-.legend-swatch.level-1 {
-  background: var(--gold-soft);
-}
-
-.legend-swatch.level-2 {
-  background: var(--gold);
-}
-
-.legend-swatch.level-3 {
-  background: var(--sage);
 }
 
 .routine-list,
@@ -1176,19 +1136,15 @@ select:focus {
   border-color: rgba(var(--danger-rgb), 0.22);
 }
 
-.low-stock-pill {
-  color: var(--danger);
-  font-size: 0.8rem;
-  font-weight: 850;
-  background: var(--danger-soft);
-  border-color: rgba(var(--danger-rgb), 0.18);
-}
-
+.low-stock-pill,
 .paused-pill {
   color: var(--muted);
   font-size: 0.8rem;
   font-weight: 850;
-  background: var(--neutral-soft);
+}
+
+.low-stock-pill strong {
+  color: var(--danger);
 }
 
 .stock-alert {
@@ -1237,31 +1193,32 @@ select:focus {
 .stock-status {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   min-height: 22px;
-  padding: 0 8px;
-  border-radius: 8px;
-  border: 1px solid rgba(var(--line-strong-rgb), 0.78);
-  background: rgba(var(--surface-rgb), 0.9);
   color: var(--muted);
   font-size: 0.7rem;
   font-weight: 900;
+  text-transform: uppercase;
+}
+
+.stock-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .stock-status.is-stable {
   color: var(--sage);
-  border-color: rgba(var(--sage-rgb), 0.22);
-  background: var(--sage-soft-bg);
 }
 
 .stock-status.is-low {
   color: var(--danger);
-  border-color: rgba(var(--danger-rgb), 0.18);
-  background: var(--danger-soft);
 }
 
 .stock-status.is-paused {
   color: var(--muted);
-  background: var(--neutral-soft);
 }
 
 .stock-controls {
