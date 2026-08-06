@@ -88,6 +88,8 @@ const TRANSLATIONS = {
     stockLabel: "Vorrat",
     stockUnitLabel: "Vorrats-Einheit",
     servingLabel: "Verbrauch pro Einnahme",
+    noteLabel: "Notiz (optional)",
+    notePlaceholder: "z. B. mit fettreicher Mahlzeit",
     save: "Speichern",
     saveChanges: "Änderungen speichern",
     refillStockTitle: "Vorrat auffüllen",
@@ -197,6 +199,8 @@ const TRANSLATIONS = {
     stockLabel: "Stock",
     stockUnitLabel: "Stock unit",
     servingLabel: "Amount per dose",
+    noteLabel: "Note (optional)",
+    notePlaceholder: "e.g. take with a fatty meal",
     save: "Save",
     saveChanges: "Save changes",
     refillStockTitle: "Refill stock",
@@ -440,6 +444,7 @@ const elements = {
   stockInput: document.querySelector("#stockInput"),
   stockUnitInput: document.querySelector("#stockUnitInput"),
   servingInput: document.querySelector("#servingInput"),
+  noteInput: document.querySelector("#noteInput"),
   refillPanel: document.querySelector("#refillPanel"),
   closeRefillButton: document.querySelector("#closeRefillButton"),
   refillForm: document.querySelector("#refillForm"),
@@ -582,6 +587,7 @@ elements.supplementForm.addEventListener("submit", (event) => {
     initialStock: Math.max(0, toNumber(elements.stockInput.value)),
     stockUnit: elements.stockUnitInput.value,
     serving: Math.max(0.1, toNumber(elements.servingInput.value)),
+    note: elements.noteInput.value.trim(),
   };
 
   if (!formData.name || !formData.times.length) {
@@ -743,6 +749,7 @@ function renderRoutine() {
         <div>
           <p class="routine-title">${escapeHTML(item.name)}</p>
           <p class="routine-meta">${formatDose(item)} · ${t("daysLeft", daysLeft(item))}</p>
+          ${item.note ? `<p class="routine-note">${escapeHTML(item.note)}</p>` : ""}
         </div>
         <div class="item-actions">
           <button class="check-button" data-check-id="${slot.checkId}" type="button" aria-label="${escapeHTML(t("markAsTaken", item.name))}">
@@ -1135,6 +1142,7 @@ function fillForm(source) {
   elements.stockInput.value = source.stock;
   elements.stockUnitInput.value = source.stockUnit;
   elements.servingInput.value = source.serving;
+  elements.noteInput.value = source.note || "";
 }
 
 function setSelectedTimes(times) {
@@ -1495,6 +1503,7 @@ function createSupplement(source) {
     initialStock: Math.max(0, toNumber(source.initialStock ?? source.stock)),
     stockUnit: source.stockUnit || "Kapseln",
     serving: Math.max(0.1, toNumber(source.serving || 1)),
+    note: (source.note || "").trim(),
     paused: Boolean(source.paused),
     // Items already carrying an id are existing entries loaded from storage —
     // backdate them so streak/history math doesn't change for current users.

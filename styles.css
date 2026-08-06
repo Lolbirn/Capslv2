@@ -1117,6 +1117,13 @@ select:focus {
   font-size: 0.82rem;
 }
 
+.routine-note {
+  margin: 3px 0 0;
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
 .stock-panel {
   align-self: start;
 }
