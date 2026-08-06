@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "python3 -m http.server 8000 --bind 0.0.0.0",
     "sync:web": "rm -rf www && mkdir -p www/icons && cp index.html app.js styles.css manifest.json sw.js impressum.html www/ && cp icons/*.png www/icons/",
     "cap:sync": "npm run sync:web && npx cap sync"
   },
