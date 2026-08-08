@@ -437,7 +437,7 @@ const todayKey = toDateKey(new Date());
 
 const supplementTemplates = [
   { name: "Vitamin D3 + K2", doseAmount: 1, doseUnit: "Kapsel", time: "Morgens", stock: 60, stockUnit: "Kapseln", serving: 1 },
-  { name: "Magnesium Glycinate", doseAmount: 2, doseUnit: "Kapsel", time: "Abends", stock: 90, stockUnit: "Kapseln", serving: 2 },
+  { name: "Magnesiumglycinat", doseAmount: 2, doseUnit: "Kapsel", time: "Abends", stock: 90, stockUnit: "Kapseln", serving: 2 },
   { name: "Omega 3", doseAmount: 2, doseUnit: "Kapsel", time: "Mittags", stock: 120, stockUnit: "Kapseln", serving: 2 },
   { name: "Creatine Monohydrate", doseAmount: 5, doseUnit: "g", time: "Nach dem Training", stock: 300, stockUnit: "g", serving: 5 },
   { name: "Zink", doseAmount: 1, doseUnit: "Tablette", time: "Abends", stock: 60, stockUnit: "Tabletten", serving: 1 },
