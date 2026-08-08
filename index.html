@@ -106,6 +106,17 @@
       </footer>
     </main>
 
+    <div id="welcomePanel" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" data-close-welcome></div>
+      <section class="modal-panel compact-modal welcome-panel" role="dialog" aria-modal="true" aria-labelledby="welcomeHeading">
+        <img class="welcome-icon" src="icons/icon-192.png?v=2" alt="" width="64" height="64">
+        <p class="eyebrow" data-i18n="welcomeEyebrow">Willkommen</p>
+        <h2 id="welcomeHeading" data-i18n="welcomeHeading">Kein Account. Keine Cloud. Nur du.</h2>
+        <p class="refill-description" data-i18n="welcomeBody">Capsl speichert alles direkt auf deinem Gerät – kein Login, keine Werbung, kein Server, der mitliest. Leg dein erstes Supplement an und starte deine Routine.</p>
+        <button id="closeWelcomeButton" class="primary-button" type="button" data-i18n="welcomeButton">Los geht's</button>
+      </section>
+    </div>
+
     <div id="formPanel" class="modal" aria-hidden="true">
       <div class="modal-backdrop" data-close-form></div>
       <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="formTitle">
@@ -238,6 +249,7 @@
           </div>
           <button id="closeBackupButton" class="ghost-button icon-button" type="button" aria-label="Schließen" data-i18n-aria-label="close">×</button>
         </div>
+        <p id="lastBackupLabel" class="last-backup-label"></p>
         <div class="backup-box">
           <p id="backupHint" class="refill-description" data-i18n="backupHintExport">Kopiere dein Backup oder lade es als Datei herunter.</p>
           <textarea id="backupTextArea" spellcheck="false" aria-label="Backup-Daten" data-i18n-aria-label="backupDataLabel"></textarea>

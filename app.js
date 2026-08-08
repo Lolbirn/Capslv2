@@ -9,6 +9,8 @@ const CHECKS_KEY = "capsl-checks-v1";
 const LANG_KEY = "capsl-lang-v1";
 const THEME_KEY = "capsl-theme-v1";
 const REMINDERS_KEY = "capsl-reminders-v1";
+const LAST_BACKUP_KEY = "capsl-last-backup-v1";
+const WELCOME_SEEN_KEY = "capsl-welcome-seen-v1";
 const REMINDER_ID_BASE = 1000;
 const REMINDER_TIME_PRESETS = ["08:00", "13:00", "20:00"];
 const OLD_STORAGE_KEYS = ["supproutine-supplements-v2", "supproutine-supplements-v1", "coredose-supplements-v1"];
@@ -40,6 +42,10 @@ const TRANSLATIONS = {
     resetDay: "Tag zurücksetzen",
     tagline: "Supplement Tracker",
     leadHtml: "<strong>Dein Stack.</strong> Jeden Tag im Griff.",
+    welcomeEyebrow: "Willkommen",
+    welcomeHeading: "Kein Account. Keine Cloud. Nur du.",
+    welcomeBody: "Capsl speichert alles direkt auf deinem Gerät – kein Login, keine Werbung, kein Server, der mitliest. Leg dein erstes Supplement an und starte deine Routine.",
+    welcomeButton: "Los geht's",
     addSupplement: "+ Supplement",
     today: "Heute",
     todayEyebrow: "Heute",
@@ -103,6 +109,9 @@ const TRANSLATIONS = {
     backupHintExport: "Kopiere dein Backup oder lade es als Datei herunter.",
     backupHintImport: "Füge ein Capsl-Backup ein oder wähle eine JSON-Datei.",
     backupTextPlaceholder: "Backup-Text hier einfügen...",
+    lastBackupNever: "Noch kein Backup erstellt",
+    lastBackupToday: "Letztes Backup: heute",
+    lastBackupDays: (days) => `Letztes Backup: vor ${days} ${days === 1 ? "Tag" : "Tagen"}`,
     downloadBackup: "Backup herunterladen",
     copyText: "Text kopieren",
     chooseFile: "Datei wählen",
@@ -151,6 +160,10 @@ const TRANSLATIONS = {
     resetDay: "Reset day",
     tagline: "Supplement Tracker",
     leadHtml: "<strong>Your stack.</strong> Handled every day.",
+    welcomeEyebrow: "Welcome",
+    welcomeHeading: "No account. No cloud. Just you.",
+    welcomeBody: "Capsl stores everything right on your device – no login, no ads, no server watching. Add your first supplement and start your routine.",
+    welcomeButton: "Get started",
     addSupplement: "+ Supplement",
     today: "Today",
     todayEyebrow: "Today",
@@ -214,6 +227,9 @@ const TRANSLATIONS = {
     backupHintExport: "Copy your backup or download it as a file.",
     backupHintImport: "Paste a Capsl backup or choose a JSON file.",
     backupTextPlaceholder: "Paste backup text here...",
+    lastBackupNever: "No backup created yet",
+    lastBackupToday: "Last backup: today",
+    lastBackupDays: (days) => `Last backup: ${days} ${days === 1 ? "day" : "days"} ago`,
     downloadBackup: "Download backup",
     copyText: "Copy text",
     chooseFile: "Choose file",
@@ -365,6 +381,7 @@ function applyStaticTranslations() {
   }
 }
 
+const EMPTY_STATE_ICON = '<svg class="empty-state-icon" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="6" rx="3" transform="rotate(-30 12 12)"/><line x1="12" y1="9" x2="12" y2="15" transform="rotate(-30 12 12)"/></svg>';
 const MOON_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>';
 const SUN_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
 
@@ -429,6 +446,8 @@ const elements = {
   importFileInput: document.querySelector("#importFileInput"),
   appMenu: document.querySelector(".app-menu"),
   showTodayButton: document.querySelector("#showTodayButton"),
+  welcomePanel: document.querySelector("#welcomePanel"),
+  closeWelcomeButton: document.querySelector("#closeWelcomeButton"),
   formPanel: document.querySelector("#formPanel"),
   supplementForm: document.querySelector("#supplementForm"),
   formTitle: document.querySelector("#formTitle"),
@@ -455,6 +474,7 @@ const elements = {
   closeBackupButton: document.querySelector("#closeBackupButton"),
   backupTextArea: document.querySelector("#backupTextArea"),
   backupHint: document.querySelector("#backupHint"),
+  lastBackupLabel: document.querySelector("#lastBackupLabel"),
   downloadBackupButton: document.querySelector("#downloadBackupButton"),
   copyBackupButton: document.querySelector("#copyBackupButton"),
   chooseImportFileButton: document.querySelector("#chooseImportFileButton"),
@@ -490,6 +510,8 @@ applyTheme();
 renderTemplateOptions();
 renderTemplateCards();
 
+elements.closeWelcomeButton.addEventListener("click", closeWelcomeDialog);
+elements.welcomePanel.querySelector("[data-close-welcome]").addEventListener("click", closeWelcomeDialog);
 elements.openFormButton.addEventListener("click", () => openSupplementForm());
 elements.closeFormButton.addEventListener("click", closeSupplementForm);
 elements.formPanel.querySelector("[data-close-form]").addEventListener("click", closeSupplementForm);
@@ -524,6 +546,9 @@ elements.remindersPanel.querySelector("[data-close-reminders]").addEventListener
 elements.remindersButton.addEventListener("click", () => openRemindersDialog());
 elements.addReminderButton.addEventListener("click", () => addReminder());
 document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && elements.welcomePanel.classList.contains("is-open")) {
+    closeWelcomeDialog();
+  }
   if (event.key === "Escape" && elements.formPanel.classList.contains("is-open")) {
     closeSupplementForm();
   }
@@ -630,6 +655,10 @@ elements.refillForm.addEventListener("submit", (event) => {
 saveAll();
 render();
 
+if (shouldShowWelcome()) {
+  openWelcomeDialog();
+}
+
 if (isNativePlatform()) {
   elements.remindersButton.hidden = false;
   rescheduleReminders(loadReminders());
@@ -734,6 +763,7 @@ function renderRoutine() {
   if (!state.supplements.length) {
     elements.routineList.innerHTML = `
       <div class="empty-state">
+        ${EMPTY_STATE_ICON}
         <strong>${t("emptyNoSupplementsTitle")}</strong>
         <p>${t("emptyNoSupplementsBody")}</p>
         <button id="emptyStateAddButton" class="primary-button" type="button">${t("emptyAddButton")}</button>
@@ -746,6 +776,7 @@ function renderRoutine() {
   if (!activeItems().length) {
     elements.routineList.innerHTML = `
       <div class="empty-state">
+        ${EMPTY_STATE_ICON}
         <strong>${t("emptyAllPausedTitle")}</strong>
         <p>${t("emptyAllPausedBody")}</p>
       </div>
@@ -822,6 +853,7 @@ function renderStock() {
   if (!state.supplements.length) {
     elements.stockList.innerHTML = `
       <div class="empty-state">
+        ${EMPTY_STATE_ICON}
         <p>${t("emptyStock")}</p>
       </div>
     `;
@@ -938,6 +970,21 @@ function completionLevel(completion) {
   return 0;
 }
 
+function shouldShowWelcome() {
+  return !localStorage.getItem(WELCOME_SEEN_KEY);
+}
+
+function openWelcomeDialog() {
+  elements.welcomePanel.classList.add("is-open");
+  elements.welcomePanel.setAttribute("aria-hidden", "false");
+}
+
+function closeWelcomeDialog() {
+  elements.welcomePanel.classList.remove("is-open");
+  elements.welcomePanel.setAttribute("aria-hidden", "true");
+  localStorage.setItem(WELCOME_SEEN_KEY, "1");
+}
+
 function openSupplementForm(item = null) {
   closeTransientMenus();
   elements.formPanel.classList.add("is-open");
@@ -994,10 +1041,34 @@ function closeRefillDialog() {
   elements.refillPanel.setAttribute("aria-hidden", "true");
 }
 
+function recordBackupTimestamp() {
+  localStorage.setItem(LAST_BACKUP_KEY, new Date().toISOString());
+  updateLastBackupLabel();
+}
+
+function updateLastBackupLabel() {
+  const raw = localStorage.getItem(LAST_BACKUP_KEY);
+  if (!raw) {
+    elements.lastBackupLabel.textContent = t("lastBackupNever");
+    elements.lastBackupLabel.classList.add("needs-attention");
+    return;
+  }
+
+  const last = new Date(raw);
+  last.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Math.round((today - last) / 86400000);
+
+  elements.lastBackupLabel.textContent = days <= 0 ? t("lastBackupToday") : t("lastBackupDays", days);
+  elements.lastBackupLabel.classList.toggle("needs-attention", days >= 14);
+}
+
 function openBackupDialog(mode) {
   closeTransientMenus();
   elements.backupPanel.classList.add("is-open");
   elements.backupPanel.setAttribute("aria-hidden", "false");
+  updateLastBackupLabel();
 
   if (mode === "import") {
     elements.backupTextArea.value = "";
@@ -1608,6 +1679,7 @@ function downloadBackup() {
     link.click();
     URL.revokeObjectURL(url);
     elements.backupHint.textContent = t("backupFilePrepared");
+    recordBackupTimestamp();
   } catch (error) {
     elements.backupHint.textContent = t("backupDownloadFailed");
   }
@@ -1624,6 +1696,7 @@ async function copyBackupText() {
     try {
       await navigator.clipboard.writeText(text);
       elements.backupHint.textContent = t("backupCopied");
+      recordBackupTimestamp();
       return;
     } catch (error) {
       // fall through to legacy copy
@@ -1633,6 +1706,7 @@ async function copyBackupText() {
   elements.backupTextArea.select();
   document.execCommand("copy");
   elements.backupHint.textContent = t("backupCopiedFallback");
+  recordBackupTimestamp();
 }
 
 function importBackupText() {
