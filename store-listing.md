@@ -2,6 +2,10 @@
 
 Entwurf für Apple App Store Connect & Google Play Console. Zeichenlimits sind in Klammern notiert.
 
+**Kategorie (App Store Connect & Google Play, gilt für die ganze App, nicht pro Sprache)**
+Primär: `Health & Fitness` (Gesundheit & Fitness) — bewusst **nicht** `Medizin`, da diese Kategorie bei Apple strenger geprüft wird (teils zusätzliche Nachweise) und für einen reinen Tracker ohne Gesundheits-/Dosierungsempfehlungen nicht nötig ist.
+Sekundär (optional, falls Apple eine zweite Kategorie zulässt): `Productivity` (Produktivität)
+
 ## 🇩🇪 Deutsch
 
 **App-Name** (max. 30 Zeichen)
