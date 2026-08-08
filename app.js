@@ -649,6 +649,32 @@ function render() {
   renderStock();
 }
 
+let completionAnimationFrame = null;
+
+function animateCompletionValue(target) {
+  const current = parseInt(elements.completionValue.textContent, 10) || 0;
+  if (current === target) {
+    elements.completionValue.textContent = `${target}%`;
+    return;
+  }
+
+  cancelAnimationFrame(completionAnimationFrame);
+  const start = performance.now();
+  const duration = 450;
+
+  const tick = (now) => {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 2);
+    const value = Math.round(current + (target - current) * eased);
+    elements.completionValue.textContent = `${value}%`;
+    if (progress < 1) {
+      completionAnimationFrame = requestAnimationFrame(tick);
+    }
+  };
+
+  completionAnimationFrame = requestAnimationFrame(tick);
+}
+
 function renderStats() {
   const hasSupplements = state.supplements.length > 0;
   document.querySelector(".daily-summary").hidden = !hasSupplements;
@@ -666,7 +692,7 @@ function renderStats() {
   const lowStock = activeSupplements.filter((item) => daysLeft(item) <= 7).length;
   const paused = pausedItems().length;
 
-  elements.completionValue.textContent = `${completion}%`;
+  animateCompletionValue(completion);
   elements.completionBar.style.width = `${completion}%`;
   elements.supplementCount.textContent = activeSupplements.length;
   elements.openDoseCount.textContent = Math.max(total - done, 0);
