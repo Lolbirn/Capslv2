@@ -1101,6 +1101,18 @@ function getLocalNotifications() {
   return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications;
 }
 
+function getHaptics() {
+  return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics;
+}
+
+function triggerHapticSuccess() {
+  const Haptics = getHaptics();
+  if (!Haptics) {
+    return;
+  }
+  Haptics.impact({ style: "LIGHT" }).catch(() => {});
+}
+
 function loadReminders() {
   return loadJSON(REMINDERS_KEY, ["09:00"]);
 }
@@ -1316,6 +1328,7 @@ function toggleCheck(checkId) {
     undoStockFor(supplementId);
   } else {
     supplement.stock = Math.max(0, supplement.stock - supplement.serving);
+    triggerHapticSuccess();
   }
 
   saveAll();
@@ -1340,6 +1353,7 @@ function checkAllForTime(time) {
   pending.forEach((slot) => {
     slot.supplement.stock = Math.max(0, slot.supplement.stock - slot.supplement.serving);
   });
+  triggerHapticSuccess();
 
   state.checks[todayKey] = [...new Set([...checks, ...pending.map((slot) => slot.checkId)])];
 
