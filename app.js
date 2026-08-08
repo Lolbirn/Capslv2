@@ -140,6 +140,8 @@ const TRANSLATIONS = {
     statusLow: "Knapp",
     statusStable: "Stabil",
     daysUnit: (days) => `${days} Tage`,
+    reorderLink: "Nachbestellen",
+    reorderQuery: (name) => `${name} kaufen`,
     refill: "Auffüllen",
     refillDescription: (name, stock) => `${name}: aktuell ${stock} übrig.`,
     deletedToast: (name) => `„${name}“ gelöscht`,
@@ -258,6 +260,8 @@ const TRANSLATIONS = {
     statusLow: "Low",
     statusStable: "Stable",
     daysUnit: (days) => `${days} days`,
+    reorderLink: "Reorder",
+    reorderQuery: (name) => `${name} buy`,
     refill: "Refill",
     refillDescription: (name, stock) => `${name}: currently ${stock} left.`,
     deletedToast: (name) => `"${name}" deleted`,
@@ -436,6 +440,7 @@ state.checks = migrateChecks(loadJSON(CHECKS_KEY, loadFirst(OLD_CHECK_KEYS, {}))
 
 let pendingDelete = null;
 let pendingDeleteTimer = null;
+let completionAnimationFrame = null;
 
 const elements = {
   openFormButton: document.querySelector("#openFormButton"),
@@ -678,8 +683,6 @@ function render() {
   renderStock();
 }
 
-let completionAnimationFrame = null;
-
 function animateCompletionValue(target) {
   const current = parseInt(elements.completionValue.textContent, 10) || 0;
   if (current === target) {
@@ -892,6 +895,7 @@ function renderStock() {
         <div class="stock-bar ${remainingDays <= 7 ? "is-low" : ""}" style="width: ${percent}%"></div>
       </div>
       <div class="stock-controls">
+        ${!item.paused && remainingDays <= 7 ? `<a class="reorder-link" href="${reorderUrl(item)}" target="_blank" rel="noopener noreferrer">${t("reorderLink")}</a>` : ""}
         <button class="refill-button" data-refill-id="${item.id}" type="button">${t("refill")}</button>
         <button class="refill-button subtle" data-pause-id="${item.id}" type="button">${item.paused ? t("activate") : t("pause")}</button>
       </div>
@@ -1576,6 +1580,10 @@ function formatStock(item) {
 
 function formatServing(item) {
   return `${formatNumber(item.serving)} ${stockUnitLabel(item.stockUnit, item.serving)}`;
+}
+
+function reorderUrl(item) {
+  return `https://www.google.com/search?q=${encodeURIComponent(t("reorderQuery", item.name))}`;
 }
 
 function unitLabel(unit, amount) {

@@ -1271,8 +1271,17 @@ select:focus {
 
 .stock-controls {
   display: flex;
+  align-items: center;
   gap: 6px;
   justify-content: flex-end;
+}
+
+.reorder-link {
+  margin-right: auto;
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-decoration: underline;
 }
 
 .refill-button {
