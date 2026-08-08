@@ -11,6 +11,8 @@ const THEME_KEY = "capsl-theme-v1";
 const REMINDERS_KEY = "capsl-reminders-v1";
 const LAST_BACKUP_KEY = "capsl-last-backup-v1";
 const WELCOME_SEEN_KEY = "capsl-welcome-seen-v1";
+const MILESTONE_SEEN_KEY = "capsl-milestones-seen-v1";
+const STREAK_MILESTONES = [7, 30, 100];
 const REMINDER_ID_BASE = 1000;
 const REMINDER_TIME_PRESETS = ["08:00", "13:00", "20:00"];
 const OLD_STORAGE_KEYS = ["supproutine-supplements-v2", "supproutine-supplements-v1", "coredose-supplements-v1"];
@@ -46,6 +48,15 @@ const TRANSLATIONS = {
     welcomeHeading: "Kein Account. Keine Cloud. Nur du.",
     welcomeBody: "Capsl speichert alles direkt auf deinem Gerät – kein Login, keine Werbung, kein Server, der mitliest. Leg dein erstes Supplement an und starte deine Routine.",
     welcomeButton: "Los geht's",
+    milestoneEyebrow: "Meilenstein",
+    milestoneHeading: (days) => `${days} Tage in Folge.`,
+    milestoneBody: (days) =>
+      ({
+        7: "Eine volle Woche ohne Unterbrechung. Weiter so.",
+        30: "Ein ganzer Monat Konstanz. Das ist Routine, kein Zufall.",
+        100: "Hundert Tage am Stück. Das hier ist jetzt einfach ein Teil von dir.",
+      })[days] || `${days} Tage in Folge - stark!`,
+    milestoneButton: "Weiter so",
     addSupplement: "+ Supplement",
     today: "Heute",
     todayEyebrow: "Heute",
@@ -166,6 +177,15 @@ const TRANSLATIONS = {
     welcomeHeading: "No account. No cloud. Just you.",
     welcomeBody: "Capsl stores everything right on your device – no login, no ads, no server watching. Add your first supplement and start your routine.",
     welcomeButton: "Get started",
+    milestoneEyebrow: "Milestone",
+    milestoneHeading: (days) => `${days} days in a row.`,
+    milestoneBody: (days) =>
+      ({
+        7: "A full week without a single gap. Keep going.",
+        30: "A whole month of consistency. That's routine, not luck.",
+        100: "A hundred days straight. This is just part of you now.",
+      })[days] || `${days} days in a row - strong!`,
+    milestoneButton: "Keep going",
     addSupplement: "+ Supplement",
     today: "Today",
     todayEyebrow: "Today",
@@ -441,6 +461,7 @@ state.checks = migrateChecks(loadJSON(CHECKS_KEY, loadFirst(OLD_CHECK_KEYS, {}))
 let pendingDelete = null;
 let pendingDeleteTimer = null;
 let completionAnimationFrame = null;
+let milestoneAnimationFrame = null;
 
 const elements = {
   openFormButton: document.querySelector("#openFormButton"),
@@ -453,6 +474,11 @@ const elements = {
   showTodayButton: document.querySelector("#showTodayButton"),
   welcomePanel: document.querySelector("#welcomePanel"),
   closeWelcomeButton: document.querySelector("#closeWelcomeButton"),
+  milestonePanel: document.querySelector("#milestonePanel"),
+  closeMilestoneButton: document.querySelector("#closeMilestoneButton"),
+  milestoneNumber: document.querySelector("#milestoneNumber"),
+  milestoneHeading: document.querySelector("#milestoneHeading"),
+  milestoneBody: document.querySelector("#milestoneBody"),
   formPanel: document.querySelector("#formPanel"),
   supplementForm: document.querySelector("#supplementForm"),
   formTitle: document.querySelector("#formTitle"),
@@ -517,6 +543,8 @@ renderTemplateCards();
 
 elements.closeWelcomeButton.addEventListener("click", closeWelcomeDialog);
 elements.welcomePanel.querySelector("[data-close-welcome]").addEventListener("click", closeWelcomeDialog);
+elements.closeMilestoneButton.addEventListener("click", closeMilestoneDialog);
+elements.milestonePanel.querySelector("[data-close-milestone]").addEventListener("click", closeMilestoneDialog);
 elements.openFormButton.addEventListener("click", () => openSupplementForm());
 elements.closeFormButton.addEventListener("click", closeSupplementForm);
 elements.formPanel.querySelector("[data-close-form]").addEventListener("click", closeSupplementForm);
@@ -553,6 +581,9 @@ elements.addReminderButton.addEventListener("click", () => addReminder());
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && elements.welcomePanel.classList.contains("is-open")) {
     closeWelcomeDialog();
+  }
+  if (event.key === "Escape" && elements.milestonePanel.classList.contains("is-open")) {
+    closeMilestoneDialog();
   }
   if (event.key === "Escape" && elements.formPanel.classList.contains("is-open")) {
     closeSupplementForm();
@@ -989,6 +1020,55 @@ function closeWelcomeDialog() {
   localStorage.setItem(WELCOME_SEEN_KEY, "1");
 }
 
+function getSeenMilestones() {
+  return loadJSON(MILESTONE_SEEN_KEY, []);
+}
+
+function markMilestoneSeen(days) {
+  const seen = getSeenMilestones();
+  if (!seen.includes(days)) {
+    localStorage.setItem(MILESTONE_SEEN_KEY, JSON.stringify([...seen, days]));
+  }
+}
+
+function checkStreakMilestone() {
+  const streak = calculateStreak();
+  if (STREAK_MILESTONES.includes(streak) && !getSeenMilestones().includes(streak)) {
+    markMilestoneSeen(streak);
+    openMilestoneDialog(streak);
+  }
+}
+
+function animateMilestoneNumber(target) {
+  cancelAnimationFrame(milestoneAnimationFrame);
+  const start = performance.now();
+  const duration = 700;
+
+  const tick = (now) => {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    elements.milestoneNumber.textContent = Math.round(target * eased);
+    if (progress < 1) {
+      milestoneAnimationFrame = requestAnimationFrame(tick);
+    }
+  };
+
+  milestoneAnimationFrame = requestAnimationFrame(tick);
+}
+
+function openMilestoneDialog(days) {
+  elements.milestoneHeading.textContent = t("milestoneHeading", days);
+  elements.milestoneBody.textContent = t("milestoneBody", days);
+  animateMilestoneNumber(days);
+  elements.milestonePanel.classList.add("is-open");
+  elements.milestonePanel.setAttribute("aria-hidden", "false");
+}
+
+function closeMilestoneDialog() {
+  elements.milestonePanel.classList.remove("is-open");
+  elements.milestonePanel.setAttribute("aria-hidden", "true");
+}
+
 function openSupplementForm(item = null) {
   closeTransientMenus();
   elements.formPanel.classList.add("is-open");
@@ -1119,6 +1199,11 @@ function triggerHapticDayComplete() {
     return;
   }
   Haptics.impact({ style: "HEAVY" }).catch(() => {});
+}
+
+function handleDayCompletion() {
+  triggerHapticDayComplete();
+  checkStreakMilestone();
 }
 
 function loadReminders() {
@@ -1337,7 +1422,7 @@ function toggleCheck(checkId) {
   } else {
     supplement.stock = Math.max(0, supplement.stock - supplement.serving);
     if (isDayComplete(todayKey)) {
-      triggerHapticDayComplete();
+      handleDayCompletion();
     } else {
       triggerHapticSuccess();
     }
@@ -1369,7 +1454,7 @@ function checkAllForTime(time) {
   state.checks[todayKey] = [...new Set([...checks, ...pending.map((slot) => slot.checkId)])];
 
   if (isDayComplete(todayKey)) {
-    triggerHapticDayComplete();
+    handleDayCompletion();
   } else {
     triggerHapticSuccess();
   }

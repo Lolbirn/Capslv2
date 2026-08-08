@@ -503,6 +503,40 @@ h2 {
   margin-top: 8px;
 }
 
+.milestone-panel {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 36px 26px;
+  text-align: center;
+  background: var(--summary-bg);
+}
+
+.milestone-panel .eyebrow {
+  margin: 0;
+}
+
+.milestone-number {
+  margin: 4px 0 0;
+  font-size: clamp(3.2rem, 16vw, 4.6rem);
+  font-weight: 950;
+  line-height: 1;
+  color: var(--gold);
+}
+
+.milestone-panel h2 {
+  margin-top: 4px;
+  font-size: 1.3rem;
+}
+
+.milestone-panel .refill-description {
+  max-width: 340px;
+}
+
+.milestone-panel .primary-button {
+  margin-top: 8px;
+}
+
 .supplement-form {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
