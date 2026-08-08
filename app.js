@@ -1118,7 +1118,7 @@ function triggerHapticDayComplete() {
   if (!Haptics) {
     return;
   }
-  Haptics.notification({ type: "SUCCESS" }).catch(() => {});
+  Haptics.impact({ style: "HEAVY" }).catch(() => {});
 }
 
 function loadReminders() {
