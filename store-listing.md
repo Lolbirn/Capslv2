@@ -9,7 +9,7 @@ Sekundär (optional, falls Apple eine zweite Kategorie zulässt): `Productivity`
 ## 🇩🇪 Deutsch
 
 **App-Name** (max. 30 Zeichen)
-`Capsl` (5) — schlicht und premium. Alternative mit Keywords: `Capsl – Supplement Tracker` (27)
+`Capsl – Supplement Tracker` (27) — der Name ist das stärkste Feld für die Apple-Suche, daher bewusst mit Keyword statt nur "Capsl": niemand sucht nach einer noch unbekannten Marke, aber nach "Supplement Tracker".
 
 **Untertitel** (iOS, max. 30 Zeichen)
 `Vorrat & Routine im Griff` (25)
@@ -52,7 +52,7 @@ das war das Ziel.
 ## 🇬🇧 English
 
 **App Name** (max 30 chars)
-`Capsl` (5) — or with keywords: `Capsl – Supplement Tracker` (27)
+`Capsl – Supplement Tracker` (27) — the name field is weighted most heavily in Apple's search, so it's worth the keyword over the bare brand name: nobody searches for an unknown brand yet, but people do search "supplement tracker".
 
 **Subtitle** (iOS, max 30 chars)
 `Stock & routine, sorted` (24)

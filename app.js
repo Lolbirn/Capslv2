@@ -1067,6 +1067,7 @@ function openMilestoneDialog(days) {
 function closeMilestoneDialog() {
   elements.milestonePanel.classList.remove("is-open");
   elements.milestonePanel.setAttribute("aria-hidden", "true");
+  requestAppReview();
 }
 
 function openSupplementForm(item = null) {
@@ -1199,6 +1200,18 @@ function triggerHapticDayComplete() {
     return;
   }
   Haptics.impact({ style: "HEAVY" }).catch(() => {});
+}
+
+function getInAppReview() {
+  return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.InAppReview;
+}
+
+function requestAppReview() {
+  const InAppReview = getInAppReview();
+  if (!InAppReview) {
+    return;
+  }
+  InAppReview.requestReview().catch(() => {});
 }
 
 function handleDayCompletion() {
