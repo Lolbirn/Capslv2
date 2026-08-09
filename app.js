@@ -931,7 +931,7 @@ function renderStock() {
         </div>
       </div>
       <div class="stock-track">
-        <div class="stock-bar ${remainingDays <= 7 ? "is-low" : ""}" style="width: ${percent}%"></div>
+        <div class="stock-bar ${remainingDays <= 7 ? "is-low" : ""}"></div>
       </div>
       <div class="stock-controls">
         ${!item.paused && remainingDays <= 7 ? `<a class="reorder-link" href="${reorderUrl(item)}" target="_blank" rel="noopener noreferrer">${t("reorderLink")}</a>` : ""}
@@ -939,6 +939,7 @@ function renderStock() {
         <button class="refill-button subtle" data-pause-id="${escapeHTML(item.id)}" type="button">${item.paused ? t("activate") : t("pause")}</button>
       </div>
     `;
+    row.querySelector(".stock-bar").style.width = `${percent}%`;
     elements.stockList.append(row);
   });
 
