@@ -1018,14 +1018,21 @@ function shouldShowWelcome() {
   return !localStorage.getItem(WELCOME_SEEN_KEY);
 }
 
+function hideModal(panel) {
+  if (panel.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+  panel.classList.remove("is-open");
+  panel.setAttribute("aria-hidden", "true");
+}
+
 function openWelcomeDialog() {
   elements.welcomePanel.classList.add("is-open");
   elements.welcomePanel.setAttribute("aria-hidden", "false");
 }
 
 function closeWelcomeDialog() {
-  elements.welcomePanel.classList.remove("is-open");
-  elements.welcomePanel.setAttribute("aria-hidden", "true");
+  hideModal(elements.welcomePanel);
   localStorage.setItem(WELCOME_SEEN_KEY, "1");
 }
 
@@ -1074,8 +1081,7 @@ function openMilestoneDialog(days) {
 }
 
 function closeMilestoneDialog() {
-  elements.milestonePanel.classList.remove("is-open");
-  elements.milestonePanel.setAttribute("aria-hidden", "true");
+  hideModal(elements.milestonePanel);
   requestAppReview();
 }
 
@@ -1111,8 +1117,7 @@ function openSupplementForm(item = null) {
 }
 
 function closeSupplementForm() {
-  elements.formPanel.classList.remove("is-open");
-  elements.formPanel.setAttribute("aria-hidden", "true");
+  hideModal(elements.formPanel);
 }
 
 function openRefillDialog(id) {
@@ -1131,8 +1136,7 @@ function openRefillDialog(id) {
 }
 
 function closeRefillDialog() {
-  elements.refillPanel.classList.remove("is-open");
-  elements.refillPanel.setAttribute("aria-hidden", "true");
+  hideModal(elements.refillPanel);
 }
 
 function recordBackupTimestamp() {
@@ -1179,8 +1183,7 @@ function openBackupDialog(mode) {
 }
 
 function closeBackupDialog() {
-  elements.backupPanel.classList.remove("is-open");
-  elements.backupPanel.setAttribute("aria-hidden", "true");
+  hideModal(elements.backupPanel);
 }
 
 function isNativePlatform() {
@@ -1347,8 +1350,7 @@ async function openRemindersDialog() {
 }
 
 function closeRemindersDialog() {
-  elements.remindersPanel.classList.remove("is-open");
-  elements.remindersPanel.setAttribute("aria-hidden", "true");
+  hideModal(elements.remindersPanel);
 }
 
 function closeTransientMenus() {
