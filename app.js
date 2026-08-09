@@ -349,6 +349,14 @@ const STOCK_UNIT_TO_DOSE_UNIT = {
   mg: "mg",
 };
 
+const ALLOWED_DOSE_UNITS = new Set(Object.keys(UNIT_LABELS.de));
+const ALLOWED_STOCK_UNITS = new Set(Object.keys(STOCK_UNIT_TO_DOSE_UNIT));
+const ALLOWED_TIMES = new Set(Object.keys(TIME_LABELS.de));
+
+function isSafeId(value) {
+  return typeof value === "string" && /^[A-Za-z0-9_-]{1,100}$/.test(value);
+}
+
 function t(key, ...args) {
   const entry = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) ?? TRANSLATIONS.de[key];
   return typeof entry === "function" ? entry(...args) : entry;
@@ -839,20 +847,20 @@ function renderRoutine() {
       row.innerHTML = `
         <div>
           <p class="routine-title">${escapeHTML(item.name)}</p>
-          <p class="routine-meta">${formatDose(item)} · ${t("daysLeft", daysLeft(item))}</p>
+          <p class="routine-meta">${escapeHTML(formatDose(item))} · ${t("daysLeft", daysLeft(item))}</p>
           ${item.note ? `<p class="routine-note">${escapeHTML(item.note)}</p>` : ""}
         </div>
         <div class="item-actions">
-          <button class="check-button" data-check-id="${slot.checkId}" type="button" aria-label="${escapeHTML(t("markAsTaken", item.name))}">
+          <button class="check-button" data-check-id="${escapeHTML(slot.checkId)}" type="button" aria-label="${escapeHTML(t("markAsTaken", item.name))}">
             <span class="check-icon">${isDone ? "✓" : ""}</span>
             <span>${isDone ? t("done") : t("taken")}</span>
           </button>
           <details class="item-menu">
             <summary aria-label="${escapeHTML(t("itemActions", item.name))}">•••</summary>
             <div class="menu-popover">
-              <button data-edit-id="${item.id}" type="button">${t("edit")}</button>
-              <button data-pause-id="${item.id}" type="button">${t("pause")}</button>
-              <button class="danger-action" data-delete-id="${item.id}" type="button">${t("deleteAction")}</button>
+              <button data-edit-id="${escapeHTML(item.id)}" type="button">${t("edit")}</button>
+              <button data-pause-id="${escapeHTML(item.id)}" type="button">${t("pause")}</button>
+              <button class="danger-action" data-delete-id="${escapeHTML(item.id)}" type="button">${t("deleteAction")}</button>
             </div>
           </details>
         </div>
@@ -915,7 +923,7 @@ function renderStock() {
       <div class="stock-header">
         <div>
           <p class="stock-title">${escapeHTML(item.name)}</p>
-          <p class="stock-meta">${t("stockRemaining", formatStock(item), formatServing(item))}</p>
+          <p class="stock-meta">${t("stockRemaining", escapeHTML(formatStock(item)), escapeHTML(formatServing(item)))}</p>
         </div>
         <div class="stock-actions">
           <span class="stock-status ${statusClass}">${statusText}</span>
@@ -927,8 +935,8 @@ function renderStock() {
       </div>
       <div class="stock-controls">
         ${!item.paused && remainingDays <= 7 ? `<a class="reorder-link" href="${reorderUrl(item)}" target="_blank" rel="noopener noreferrer">${t("reorderLink")}</a>` : ""}
-        <button class="refill-button" data-refill-id="${item.id}" type="button">${t("refill")}</button>
-        <button class="refill-button subtle" data-pause-id="${item.id}" type="button">${item.paused ? t("activate") : t("pause")}</button>
+        <button class="refill-button" data-refill-id="${escapeHTML(item.id)}" type="button">${t("refill")}</button>
+        <button class="refill-button subtle" data-pause-id="${escapeHTML(item.id)}" type="button">${item.paused ? t("activate") : t("pause")}</button>
       </div>
     `;
     elements.stockList.append(row);
@@ -1728,14 +1736,14 @@ function stockUnitLabel(unit, amount) {
 
 function createSupplement(source) {
   return {
-    id: source.id || crypto.randomUUID(),
+    id: isSafeId(source.id) ? source.id : crypto.randomUUID(),
     name: source.name,
     doseAmount: Math.max(0, toNumber(source.doseAmount)),
-    doseUnit: source.doseUnit || "Kapsel",
+    doseUnit: ALLOWED_DOSE_UNITS.has(source.doseUnit) ? source.doseUnit : "Kapsel",
     times: normalizeTimes(source.times || source.time),
     stock: Math.max(0, toNumber(source.stock)),
     initialStock: Math.max(0, toNumber(source.initialStock ?? source.stock)),
-    stockUnit: source.stockUnit || "Kapseln",
+    stockUnit: ALLOWED_STOCK_UNITS.has(source.stockUnit) ? source.stockUnit : "Kapseln",
     serving: Math.max(0.1, toNumber(source.serving || 1)),
     note: (source.note || "").trim(),
     paused: Boolean(source.paused),
@@ -1747,13 +1755,9 @@ function createSupplement(source) {
 }
 
 function normalizeTimes(value) {
-  if (Array.isArray(value) && value.length) {
-    return value;
-  }
-  if (typeof value === "string" && value) {
-    return [value];
-  }
-  return ["Morgens"];
+  const list = Array.isArray(value) ? value : typeof value === "string" && value ? [value] : [];
+  const safe = list.filter((time) => ALLOWED_TIMES.has(time));
+  return safe.length ? safe : ["Morgens"];
 }
 
 function normalizeSupplements(items) {
