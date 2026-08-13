@@ -349,6 +349,7 @@ const STOCK_UNIT_TO_DOSE_UNIT = {
   mg: "mg",
 };
 
+// Derived from the .de half only — UNIT_LABELS.de/.en and TIME_LABELS.de/.en must keep identical key sets.
 const ALLOWED_DOSE_UNITS = new Set(Object.keys(UNIT_LABELS.de));
 const ALLOWED_STOCK_UNITS = new Set(Object.keys(STOCK_UNIT_TO_DOSE_UNIT));
 const ALLOWED_TIMES = new Set(Object.keys(TIME_LABELS.de));
@@ -460,11 +461,16 @@ const defaultSupplements = [
   createSupplement(supplementTemplates[1]),
 ];
 
+const rawStoredSupplements = loadJSON(STORAGE_KEY, loadFirst(OLD_STORAGE_KEYS, defaultSupplements));
 const state = {
-  supplements: normalizeSupplements(loadJSON(STORAGE_KEY, loadFirst(OLD_STORAGE_KEYS, defaultSupplements))),
+  supplements: normalizeSupplements(rawStoredSupplements),
   checks: {},
 };
-state.checks = migrateChecks(loadJSON(CHECKS_KEY, loadFirst(OLD_CHECK_KEYS, {})), state.supplements);
+const startupIdRemap = buildIdRemap(rawStoredSupplements, state.supplements);
+state.checks = remapChecks(
+  migrateChecks(loadJSON(CHECKS_KEY, loadFirst(OLD_CHECK_KEYS, {})), state.supplements),
+  startupIdRemap
+);
 
 let pendingDelete = null;
 let pendingDeleteTimer = null;
@@ -586,24 +592,22 @@ elements.closeRemindersButton.addEventListener("click", closeRemindersDialog);
 elements.remindersPanel.querySelector("[data-close-reminders]").addEventListener("click", closeRemindersDialog);
 elements.remindersButton.addEventListener("click", () => openRemindersDialog());
 elements.addReminderButton.addEventListener("click", () => addReminder());
+const modalCloseHandlers = [
+  [elements.welcomePanel, closeWelcomeDialog],
+  [elements.milestonePanel, closeMilestoneDialog],
+  [elements.formPanel, closeSupplementForm],
+  [elements.refillPanel, closeRefillDialog],
+  [elements.backupPanel, closeBackupDialog],
+  [elements.remindersPanel, closeRemindersDialog],
+];
+
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && elements.welcomePanel.classList.contains("is-open")) {
-    closeWelcomeDialog();
+  if (event.key !== "Escape") {
+    return;
   }
-  if (event.key === "Escape" && elements.milestonePanel.classList.contains("is-open")) {
-    closeMilestoneDialog();
-  }
-  if (event.key === "Escape" && elements.formPanel.classList.contains("is-open")) {
-    closeSupplementForm();
-  }
-  if (event.key === "Escape" && elements.refillPanel.classList.contains("is-open")) {
-    closeRefillDialog();
-  }
-  if (event.key === "Escape" && elements.backupPanel.classList.contains("is-open")) {
-    closeBackupDialog();
-  }
-  if (event.key === "Escape" && elements.remindersPanel.classList.contains("is-open")) {
-    closeRemindersDialog();
+  const openModal = modalCloseHandlers.find(([panel]) => panel.classList.contains("is-open"));
+  if (openModal) {
+    openModal[1]();
   }
 });
 
@@ -671,11 +675,11 @@ elements.supplementForm.addEventListener("submit", (event) => {
       const initialStock = formData.stock > existing.stock
         ? Math.max(formData.stock, existing.initialStock || formData.stock)
         : formData.stock;
-      state.supplements[index] = {
+      state.supplements[index] = createSupplement({
         ...existing,
         ...formData,
         initialStock,
-      };
+      });
     }
   } else {
     state.supplements.push(createSupplement(formData));
@@ -1018,6 +1022,11 @@ function shouldShowWelcome() {
   return !localStorage.getItem(WELCOME_SEEN_KEY);
 }
 
+function showModal(panel) {
+  panel.classList.add("is-open");
+  panel.setAttribute("aria-hidden", "false");
+}
+
 function hideModal(panel) {
   if (panel.contains(document.activeElement)) {
     document.activeElement.blur();
@@ -1027,8 +1036,7 @@ function hideModal(panel) {
 }
 
 function openWelcomeDialog() {
-  elements.welcomePanel.classList.add("is-open");
-  elements.welcomePanel.setAttribute("aria-hidden", "false");
+  showModal(elements.welcomePanel);
 }
 
 function closeWelcomeDialog() {
@@ -1076,8 +1084,7 @@ function openMilestoneDialog(days) {
   elements.milestoneHeading.textContent = t("milestoneHeading", days);
   elements.milestoneBody.textContent = t("milestoneBody", days);
   animateMilestoneNumber(days);
-  elements.milestonePanel.classList.add("is-open");
-  elements.milestonePanel.setAttribute("aria-hidden", "false");
+  showModal(elements.milestonePanel);
 }
 
 function closeMilestoneDialog() {
@@ -1087,8 +1094,7 @@ function closeMilestoneDialog() {
 
 function openSupplementForm(item = null) {
   closeTransientMenus();
-  elements.formPanel.classList.add("is-open");
-  elements.formPanel.setAttribute("aria-hidden", "false");
+  showModal(elements.formPanel);
   elements.supplementForm.reset();
   elements.servingInput.value = "1";
 
@@ -1130,8 +1136,7 @@ function openRefillDialog(id) {
   elements.refillIdInput.value = id;
   elements.refillAmountInput.value = "";
   elements.refillDescription.textContent = t("refillDescription", supplement.name, formatStock(supplement));
-  elements.refillPanel.classList.add("is-open");
-  elements.refillPanel.setAttribute("aria-hidden", "false");
+  showModal(elements.refillPanel);
   elements.refillAmountInput.focus();
 }
 
@@ -1164,8 +1169,7 @@ function updateLastBackupLabel() {
 
 function openBackupDialog(mode) {
   closeTransientMenus();
-  elements.backupPanel.classList.add("is-open");
-  elements.backupPanel.setAttribute("aria-hidden", "false");
+  showModal(elements.backupPanel);
   updateLastBackupLabel();
 
   if (mode === "import") {
@@ -1343,8 +1347,7 @@ async function addReminder() {
 
 async function openRemindersDialog() {
   closeTransientMenus();
-  elements.remindersPanel.classList.add("is-open");
-  elements.remindersPanel.setAttribute("aria-hidden", "false");
+  showModal(elements.remindersPanel);
   renderReminders();
   await ensureNotificationPermission();
 }
@@ -1780,6 +1783,39 @@ function normalizeSupplements(items) {
   });
 }
 
+function buildIdRemap(originalItems, normalizedItems) {
+  const remap = new Map();
+  originalItems.forEach((original, index) => {
+    const normalized = normalizedItems[index];
+    if (original && original.id && normalized && normalized.id !== original.id) {
+      remap.set(original.id, normalized.id);
+    }
+  });
+  return remap;
+}
+
+function remapChecks(checks, idRemap) {
+  if (!idRemap.size) {
+    return checks;
+  }
+
+  const remapped = {};
+  Object.entries(checks).forEach(([dateKey, ids]) => {
+    remapped[dateKey] = ids.map((checkId) => {
+      for (const [oldId, newId] of idRemap) {
+        if (checkId === oldId) {
+          return newId;
+        }
+        if (checkId.startsWith(`${oldId}::`)) {
+          return newId + checkId.slice(oldId.length);
+        }
+      }
+      return checkId;
+    });
+  });
+  return remapped;
+}
+
 function migrateChecks(checks, supplements) {
   const byId = new Map(supplements.map((item) => [item.id, item]));
   const migrated = {};
@@ -1885,7 +1921,8 @@ function applyImportedPayload(payload) {
   }
 
   state.supplements = normalizeSupplements(payload.supplements);
-  state.checks = payload.checks || {};
+  const importIdRemap = buildIdRemap(payload.supplements, state.supplements);
+  state.checks = remapChecks(payload.checks || {}, importIdRemap);
   saveAll();
   render();
 }
