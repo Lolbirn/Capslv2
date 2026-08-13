@@ -3,59 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'">
     <title>Impressum &amp; Datenschutz – Capsl</title>
     <link rel="icon" href="icons/icon-192.png?v=2" type="image/png">
     <meta name="theme-color" content="#211a16">
     <link rel="stylesheet" href="styles.css">
-    <style>
-      .legal-shell {
-        width: min(760px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 32px 0 60px;
-      }
-
-      .legal-panel {
-        padding: 28px;
-        margin-bottom: 16px;
-      }
-
-      .legal-panel h1 {
-        font-size: clamp(1.4rem, 6vw, 1.8rem);
-        margin-bottom: 6px;
-        overflow-wrap: break-word;
-      }
-
-      .legal-panel {
-        overflow-wrap: break-word;
-      }
-
-      .legal-panel h2 {
-        font-size: 1.1rem;
-        margin: 28px 0 10px;
-      }
-
-      .legal-panel h2:first-of-type {
-        margin-top: 0;
-      }
-
-      .legal-panel p {
-        margin: 0 0 12px;
-        color: var(--ink);
-        line-height: 1.6;
-      }
-
-      .legal-panel a {
-        color: var(--gold);
-      }
-
-      .back-link {
-        display: inline-block;
-        margin-bottom: 18px;
-        color: var(--muted);
-        font-weight: 800;
-        text-decoration: none;
-      }
-    </style>
   </head>
   <body>
     <main class="legal-shell">
