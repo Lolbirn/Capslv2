@@ -1,4 +1,4 @@
-const CACHE_NAME = "capsl-v38";
+const CACHE_NAME = "capsl-v39";
 const CORE_ASSETS = [
   "./",
   "./index.html",
