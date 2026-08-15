@@ -1,4 +1,4 @@
-const CACHE_NAME = "capsl-v39";
+const CACHE_NAME = "capsl-v40";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -7,6 +7,8 @@ const CORE_ASSETS = [
   "./manifest.json",
   "./icons/icon-192.png?v=2",
   "./icons/icon-512.png?v=2",
+  "./fonts/Manrope-Variable.woff2",
+  "./fonts/Fraunces-Variable.woff2",
 ];
 
 self.addEventListener("install", (event) => {
