@@ -933,9 +933,7 @@ select:focus {
 .summary-progress strong {
   display: block;
   margin-top: 2px;
-  font-family: "Fraunces", serif;
   font-size: 1.5rem;
-  font-weight: 700;
 }
 
 .summary-metrics {
