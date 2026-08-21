@@ -478,6 +478,7 @@ let completionAnimationFrame = null;
 let milestoneAnimationFrame = null;
 
 const elements = {
+  appShell: document.querySelector(".app-shell"),
   openFormButton: document.querySelector("#openFormButton"),
   closeFormButton: document.querySelector("#closeFormButton"),
   resetDayButton: document.querySelector("#resetDayButton"),
@@ -1025,6 +1026,7 @@ function shouldShowWelcome() {
 function showModal(panel) {
   panel.classList.add("is-open");
   panel.setAttribute("aria-hidden", "false");
+  elements.appShell.inert = true;
 }
 
 function hideModal(panel) {
@@ -1033,10 +1035,12 @@ function hideModal(panel) {
   }
   panel.classList.remove("is-open");
   panel.setAttribute("aria-hidden", "true");
+  elements.appShell.inert = false;
 }
 
 function openWelcomeDialog() {
   showModal(elements.welcomePanel);
+  elements.closeWelcomeButton.focus({ preventScroll: true });
 }
 
 function closeWelcomeDialog() {
@@ -1085,6 +1089,7 @@ function openMilestoneDialog(days) {
   elements.milestoneBody.textContent = t("milestoneBody", days);
   animateMilestoneNumber(days);
   showModal(elements.milestonePanel);
+  elements.closeMilestoneButton.focus({ preventScroll: true });
 }
 
 function closeMilestoneDialog() {
@@ -1348,6 +1353,7 @@ async function addReminder() {
 async function openRemindersDialog() {
   closeTransientMenus();
   showModal(elements.remindersPanel);
+  elements.closeRemindersButton.focus({ preventScroll: true });
   renderReminders();
   await ensureNotificationPermission();
 }
