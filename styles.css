@@ -536,6 +536,7 @@ h2 {
   font-family: "Fraunces", serif;
   font-size: clamp(3.2rem, 16vw, 4.6rem);
   font-weight: 900;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
   color: var(--gold);
 }
@@ -934,6 +935,7 @@ select:focus {
   display: block;
   margin-top: 2px;
   font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .summary-metrics {
