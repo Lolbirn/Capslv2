@@ -540,6 +540,7 @@ const elements = {
   todayLabel: document.querySelector("#todayLabel"),
   completionValue: document.querySelector("#completionValue"),
   completionBar: document.querySelector("#completionBar"),
+  completionRingWrap: document.querySelector("#completionRingWrap"),
   supplementCount: document.querySelector("#supplementCount"),
   openDoseCount: document.querySelector("#openDoseCount"),
   lowStockCount: document.querySelector("#lowStockCount"),
@@ -769,7 +770,8 @@ function renderStats() {
   const paused = pausedItems().length;
 
   animateCompletionValue(completion);
-  elements.completionBar.style.width = `${completion}%`;
+  const ringCircumference = 2 * Math.PI * 40;
+  elements.completionBar.setAttribute("stroke-dashoffset", ringCircumference * (1 - completion / 100));
   elements.supplementCount.textContent = activeSupplements.length;
   elements.openDoseCount.textContent = Math.max(total - done, 0);
   elements.lowStockCount.textContent = lowStock;
@@ -1235,8 +1237,16 @@ function requestAppReview() {
   InAppReview.requestReview().catch(() => {});
 }
 
+function triggerCompletionRingPop() {
+  const wrap = elements.completionRingWrap;
+  wrap.classList.remove("ring-pop");
+  void wrap.offsetWidth;
+  wrap.classList.add("ring-pop");
+}
+
 function handleDayCompletion() {
   triggerHapticDayComplete();
+  triggerCompletionRingPop();
   checkStreakMilestone();
 }
 
